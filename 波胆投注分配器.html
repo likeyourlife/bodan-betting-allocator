@@ -377,6 +377,7 @@ body::before {
   position: relative;
   user-select: none;
   letter-spacing: 0.02em;
+  touch-action: manipulation;
 }
 
 .score-badge:hover {
@@ -485,18 +486,22 @@ body::before {
   inset: 0;
   z-index: 100;
   display: none;
+  background: rgba(0,0,0,0.5);
 }
 
 .score-picker-overlay.active { display: block; }
 
 .score-picker {
-  position: absolute;
+  position: fixed;
   background: var(--bg-elevated);
   border: 1px solid var(--border-active);
   border-radius: var(--radius);
   padding: 16px;
   z-index: 101;
   min-width: 280px;
+  max-height: 80vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,29,37,0.05);
   animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: none;
@@ -551,6 +556,7 @@ body::before {
   border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all 0.15s;
+  touch-action: manipulation;
 }
 
 .picker-score-option:hover {
@@ -1214,6 +1220,48 @@ body::before {
 
   /* Analysis note */
   .analysis-note { padding: 12px 12px; font-size: 0.74rem; }
+
+  /* ===== Mobile: Score Picker bottom sheet ===== */
+  .score-picker.mobile-bottom-sheet {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: auto !important;
+    max-height: 70vh !important;
+    border-radius: 14px 14px 0 0 !important;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .picker-group-scores {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .picker-score-option {
+    padding: 10px 2px;
+    font-size: 0.92rem;
+  }
+
+  .picker-custom-row input {
+    width: 52px;
+    padding: 8px 4px;
+    font-size: 0.9rem;
+  }
+
+  .picker-confirm-btn {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+
+  .score-badge {
+    touch-action: manipulation;
+  }
 }
 
 /* ===== Module Section Divider ===== */
@@ -2153,21 +2201,42 @@ function openPicker(rowIndex, currentScore) {
 
   buildPickerGrid(currentScore);
 
-  // Position picker near the clicked badge
+  // Position picker — now using fixed positioning, viewport coords are correct
   const badge = document.querySelectorAll('.score-badge')[rowIndex];
   if (badge) {
     const rect = badge.getBoundingClientRect();
-    const pickerW = 290;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const pickerW = Math.min(290, vw - 32);
     const pickerH = 460;
-    let left = rect.left;
-    let top = rect.bottom + 6;
 
-    if (left + pickerW > window.innerWidth - 16) left = window.innerWidth - pickerW - 16;
-    if (left < 16) left = 16;
-    if (top + pickerH > window.innerHeight - 16) top = rect.top - pickerH - 6;
+    // On mobile (<500px), show picker as bottom sheet
+    if (vw < 500) {
+      $scorePicker.style.left = '8px';
+      $scorePicker.style.right = '8px';
+      $scorePicker.style.bottom = '0';
+      $scorePicker.style.top = 'auto';
+      $scorePicker.style.width = 'auto';
+      $scorePicker.style.maxHeight = '70vh';
+      $scorePicker.style.borderRadius = '14px 14px 0 0';
+    } else {
+      // Desktop: position near badge
+      let left = rect.left;
+      let top = rect.bottom + 6;
 
-    $scorePicker.style.left = left + 'px';
-    $scorePicker.style.top = top + 'px';
+      if (left + pickerW > vw - 16) left = vw - pickerW - 16;
+      if (left < 16) left = 16;
+      if (top + pickerH > vh - 16) top = rect.top - pickerH - 6;
+      if (top < 16) top = 16;
+
+      $scorePicker.style.left = left + 'px';
+      $scorePicker.style.right = 'auto';
+      $scorePicker.style.top = top + 'px';
+      $scorePicker.style.bottom = 'auto';
+      $scorePicker.style.width = '';
+      $scorePicker.style.maxHeight = '80vh';
+      $scorePicker.style.borderRadius = 'var(--radius)';
+    }
   }
 
   $pickerOverlay.classList.add('active');
@@ -2187,6 +2256,14 @@ function closePicker() {
   pickerRowIndex = -1;
   $pickerOverlay.classList.remove('active');
   $scorePicker.classList.remove('active');
+  // Clear any dynamic mobile styles
+  $scorePicker.style.left = '';
+  $scorePicker.style.right = '';
+  $scorePicker.style.top = '';
+  $scorePicker.style.bottom = '';
+  $scorePicker.style.width = '';
+  $scorePicker.style.maxHeight = '';
+  $scorePicker.style.borderRadius = '';
   document.querySelectorAll('.score-badge .caret').forEach(c => c.classList.remove('open'));
 }
 
