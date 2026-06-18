@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波胆投注智能分配器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --wc-red: #E61D25;
+  --wc-red-light: #f04a50;
+  --wc-red-dark: #b0151c;
+  --wc-blue: #2A398D;
+  --wc-blue-light: #3b4fb5;
+  --wc-blue-dark: #1b2668;
+  --wc-green: #3CAC3B;
+  --wc-green-light: #5EDC6B;
+  --wc-green-dark: #2a7a29;
+  --wc-gold: #d4a843;
+  --wc-gold-light: #edc265;
+  --wc-gold-dim: #9a7a2e;
+
+  --bg-deep: #060a18;
+  --bg-card: #0b1228;
+  --bg-card-alt: #0f1835;
+  --bg-elevated: #131e42;
+  --bg-input: rgba(255,255,255,0.04);
+
+  --accent: #E61D25;
+  --accent-light: #f04a50;
+  --accent-dim: #b0151c;
+  --accent-green: #3CAC3B;
+  --accent-green-light: #5EDC6B;
+
+  --text-primary: #f0ebe0;
+  --text-secondary: #a8a49c;
+  --text-muted: #5c5850;
+  --border-subtle: rgba(230,29,37,0.1);
+  --border-active: rgba(230,29,37,0.3);
+  --shadow-card: 0 2px 20px rgba(0,0,0,0.6);
+  --shadow-accent: 0 0 40px rgba(230,29,37,0.08);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(42,57,141,0.008) 3px, rgba(42,57,141,0.008) 6px),
+    radial-gradient(ellipse at 50% -10%, rgba(42,57,141,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 60%, rgba(230,29,37,0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 20px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Header ===== */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(230,29,37,0.08);
+  border: 1px solid rgba(230,29,37,0.2);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.header-icon {
+  font-size: 42px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 12px rgba(230,29,37,0.25));
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.header h1 {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--accent), var(--wc-blue-light), var(--wc-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+}
+
+.header .subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+/* ===== Match Card ===== */
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.match-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+  opacity: 0.4;
+}
+
+.match-team {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  min-width: 80px;
+}
+
+.match-team.home { text-align: right; }
+.match-team.away { text-align: left; }
+
+.match-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.match-vs .vs-text {
+  font-family: 'Marcellus', serif;
+  font-size: 1.5rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.match-vs .vs-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--accent-dim);
+  opacity: 0.5;
+}
+
+.match-edit-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.match-edit-hint:hover { color: var(--accent); }
+
+.match-team-input {
+  display: none;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 1.1rem;
+  padding: 6px 10px;
+  background: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  text-align: center;
+  width: 120px;
+  outline: none;
+}
+
+.match-team-input:focus {
+  border-color: var(--accent);
+  background: rgba(230,29,37,0.06);
+}
+
+.match-card.editing .match-team { display: none; }
+.match-card.editing .match-team-input { display: inline-block; }
+.match-card.editing .match-edit-hint { display: none; }
+
+/* ===== Main Grid ===== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 430px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .header h1 { font-size: 1.6rem; }
+}
+
+/* ===== Card ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: visible;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.card-accent-top {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
+  opacity: 0.5;
+}
+
+.card-title {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--accent-light);
+  margin-bottom: 22px;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .dot {
+  width: 7px; height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(230,29,37,0.4);
+}
+
+/* ===== Score Rows ===== */
+.form-group { margin-bottom: 20px; }
+
+.form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.77rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.form-label .hint {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: none;
+}
+
+.score-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.012);
+  border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.score-row:hover {
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.05);
+}
+
+.score-row .row-index {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Score badge — clickable to open picker */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(230,29,37,0.06);
+  border: 1px solid rgba(230,29,37,0.18);
+  border-radius: var(--radius-xs);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 70px;
+  position: relative;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+.score-badge:hover {
+  background: rgba(230,29,37,0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(230,29,37,0.12);
+  transform: translateY(-1px);
+}
+
+.score-badge:active { transform: scale(0.97); }
+
+.score-badge .caret {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  margin-left: 2px;
+}
+
+.score-badge .caret.open { transform: rotate(180deg); }
+
+/* Odds input */
+.odds-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.odds-label-text {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.odds-input {
+  width: 72px;
+  padding: 8px 6px;
+  text-align: center;
+  background: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-xs);
+  color: var(--accent-light);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.odds-input:focus {
+  border-color: var(--accent);
+  background: rgba(230,29,37,0.06);
+  box-shadow: 0 0 0 3px rgba(230,29,37,0.05);
+}
+
+.odds-input::placeholder { color: var(--text-muted); }
+
+/* Quick odds chips */
+.quick-odds {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.quick-odds .chip {
+  padding: 3px 7px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.quick-odds .chip:hover {
+  background: rgba(230,29,37,0.12);
+  border-color: var(--accent-dim);
+  color: var(--accent-light);
+}
+
+/* Remove btn */
+.remove-btn {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.remove-btn:hover {
+  background: rgba(230,29,37,0.15);
+  border-color: rgba(230,29,37,0.3);
+  color: var(--wc-red-light);
+}
+
+/* ===== Score Picker Popover ===== */
+.score-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+}
+
+.score-picker-overlay.active { display: block; }
+
+.score-picker {
+  position: absolute;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius);
+  padding: 16px;
+  z-index: 101;
+  min-width: 280px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,29,37,0.05);
+  animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+}
+
+.score-picker.active { display: block; }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.picker-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.picker-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.picker-group-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+.picker-group-scores {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+.picker-score-option {
+  padding: 8px 4px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.picker-score-option:hover {
+  background: rgba(230,29,37,0.1);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.picker-score-option.selected {
+  background: rgba(230,29,37,0.15);
+  border-color: var(--accent);
+  color: var(--accent-light);
+  font-weight: 500;
+}
+
+.picker-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.picker-custom-row .custom-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.picker-custom-row input {
+  width: 44px;
+  padding: 6px;
+  text-align: center;
+  background: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.picker-custom-row input:focus {
+  border-color: var(--accent);
+}
+
+.picker-custom-row .colon { color: var(--text-muted); }
+
+.picker-confirm-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: rgba(230,29,37,0.12);
+  border: 1px solid rgba(230,29,37,0.25);
+  border-radius: var(--radius-xs);
+  color: var(--accent-light);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.picker-confirm-btn:hover {
+  background: rgba(230,29,37,0.2);
+  border-color: var(--accent);
+}
+
+/* ===== Add Button ===== */
+.add-score-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  background: rgba(230,29,37,0.04);
+  border: 1px dashed rgba(230,29,37,0.2);
+  border-radius: var(--radius-xs);
+  color: var(--accent);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 6px;
+}
+
+.add-score-btn:hover {
+  background: rgba(230,29,37,0.1);
+  border-color: var(--accent);
+}
+
+.add-score-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ===== Amount Input ===== */
+.amount-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amount-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  color: var(--accent-light);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.amount-input:focus {
+  border-color: var(--accent);
+  background: rgba(230,29,37,0.04);
+  box-shadow: 0 0 0 3px rgba(230,29,37,0.06);
+}
+
+.amount-input::placeholder { color: var(--text-muted); font-weight: 400; font-size: 0.9rem; }
+
+.amount-presets {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.amount-presets .chip {
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.amount-presets .chip:hover {
+  background: rgba(230,29,37,0.1);
+  border-color: var(--accent-dim);
+  color: var(--accent-light);
+}
+
+/* ===== Weight Toggle ===== */
+.weight-section { margin-top: 18px; }
+
+.weight-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  padding: 6px 0;
+}
+
+.weight-toggle input { display: none; }
+
+.toggle-track {
+  width: 38px; height: 22px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 11px;
+  position: relative;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: all 0.25s;
+}
+
+.weight-toggle input:checked + .toggle-track { background: rgba(230,29,37,0.3); }
+.weight-toggle input:checked + .toggle-track::after {
+  background: var(--accent);
+  left: 18px;
+}
+
+.weight-sliders {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 14px;
+  background: rgba(255,255,255,0.015);
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.weight-sliders.visible { display: flex; }
+
+.weight-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weight-item label {
+  width: 46px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.weight-item input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  outline: none;
+}
+
+.weight-item input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(230,29,37,0.3);
+}
+
+.weight-item .weight-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--accent-light);
+  width: 34px;
+  text-align: right;
+}
+
+/* ===== Buttons ===== */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-calculate {
+  flex: 1;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #b0151c, #E61D25, #b0151c);
+  background-size: 200% 100%;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-calculate:hover {
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  box-shadow: 0 6px 24px rgba(230,29,37,0.25);
+  transform: translateY(-1px);
+}
+
+.btn-calculate:active { transform: translateY(0); }
+
+.btn-calculate .shortcut {
+  font-size: 0.68rem;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+.btn-outline {
+  padding: 14px 18px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-outline:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text-secondary);
+}
+
+/* ===== Results Panel ===== */
+.results-panel {
+  display: none;
+  animation: fadeUp 0.35s ease-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.results-panel.visible { display: block; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text-muted);
+}
+
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state p { font-size: 0.84rem; line-height: 1.8; }
+
+/* Summary Strip */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px 14px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+
+.stat-card.total::before { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.stat-card.ret::before { background: linear-gradient(90deg, transparent, var(--accent-green), transparent); }
+.stat-card.profit::before { background: linear-gradient(90deg, transparent, var(--wc-red), transparent); }
+.stat-card.profit.pos::before { background: linear-gradient(90deg, transparent, var(--accent-green), transparent); }
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.stat-value.gold { color: var(--accent-light); }
+.stat-value.green { color: var(--accent-green); }
+.stat-value.red { color: var(--wc-red-light); }
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Allocation Table */
+.alloc-table-wrap {
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.alloc-table { width: 100%; border-collapse: collapse; }
+
+.alloc-table th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.015);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.alloc-table td {
+  padding: 11px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+.alloc-table tbody tr:last-child td { border-bottom: none; }
+
+.alloc-table tbody tr { transition: background 0.15s; }
+.alloc-table tbody tr:hover { background: rgba(230,29,37,0.03); }
+
+.alloc-table .sc { font-weight: 500; color: var(--text-primary); font-size: 0.95rem; }
+.alloc-table .am { color: var(--accent-light); }
+.alloc-table .rt { color: var(--accent-green); }
+.alloc-table .pf.pos { color: var(--accent-green); }
+.alloc-table .pf.neg { color: var(--wc-red-light); }
+.alloc-table .pct { color: var(--text-secondary); font-size: 0.78rem; }
+
+.alloc-table .highlight-row {
+  background: rgba(230,29,37,0.04) !important;
+}
+
+/* Bar Chart */
+.bar-section {
+  margin-top: 18px;
+  padding: 16px;
+  background: rgba(255,255,255,0.012);
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.bar-title {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bar-score-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 22px;
+  background: rgba(255,255,255,0.025);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(230,29,37,0.35), rgba(230,29,37,0.7));
+  border-radius: 4px;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 2px;
+  position: relative;
+}
+
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  opacity: 0.5;
+  border-radius: 2px;
+}
+
+.bar-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.bar-pct-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Analysis Note */
+.analysis-note {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(230,29,37,0.04);
+  border-left: 2px solid var(--accent-dim);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.analysis-note .formula {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-light);
+  font-size: 0.78rem;
+  background: rgba(230,29,37,0.06);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.analysis-note .hl { color: var(--accent-light); font-weight: 500; }
+.analysis-note .warn { color: var(--wc-red-light); }
+.analysis-note .good { color: var(--accent-green-light); }
+
+.analysis-note .badge-arb {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(60,172,59,0.15);
+  border: 1px solid rgba(60,172,59,0.3);
+  border-radius: 12px;
+  font-size: 0.72rem;
+  color: var(--accent-green-light);
+  font-weight: 500;
+}
+
+.analysis-note .badge-loss {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(230,29,37,0.12);
+  border: 1px solid rgba(230,29,37,0.25);
+  border-radius: 12px;
+  font-size: 0.72rem;
+  color: var(--wc-red-light);
+  font-weight: 500;
+}
+
+.analysis-note .badge-even {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Footer */
+.footer-info {
+  text-align: center;
+  margin-top: 36px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  opacity: 0.7;
+}
+
+/* Pulse animation for calculate button after input changes */
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230,29,37,0); }
+  50% { box-shadow: 0 0 0 4px rgba(230,29,37,0.08); }
+}
+
+.btn-calculate.pulse {
+  animation: subtlePulse 2s ease-in-out infinite;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <div class="header-badge">⚽ 2026 WORLD CUP</div>
+    <span class="header-icon">⚽</span>
+    <h1>波胆投注智能分配器</h1>
+    <p class="subtitle">Correct Score · Dutching Algorithm · Profit Maximization</p>
+  </header>
+
+  <!-- Match Card -->
+  <div class="match-card" id="matchCard">
+    <span class="match-team home" id="homeName">西班牙</span>
+    <input class="match-team-input" id="homeInput" value="西班牙" maxlength="12">
+    <div class="match-vs">
+      <span class="vs-text">VS</span>
+      <span class="vs-divider"></span>
+    </div>
+    <span class="match-team away" id="awayName">葡萄牙</span>
+    <input class="match-team-input" id="awayInput" value="葡萄牙" maxlength="12">
+    <span class="match-edit-hint" id="editTeams">✎ 编辑</span>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <!-- LEFT: Input -->
+    <div>
+      <div class="card" id="inputCard">
+        <div class="card-accent-top"></div>
+        <div class="card-title"><span class="dot"></span>投注比分设置</div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>选择比分 &amp; 输入赔率</span>
+            <span class="hint" id="scoreCountHint">3 / 5 个比分</span>
+          </div>
+          <div class="score-rows" id="scoreRows"></div>
+          <button class="add-score-btn" id="addScoreBtn">
+            <span>+</span> 添加比分
+          </button>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">单场投注总金额</div>
+          <input type="number" class="amount-input" id="totalAmount" placeholder="输入金额" value="10000" min="0" step="100">
+          <div class="amount-presets">
+            <span class="chip" data-amount="1000">1,000</span>
+            <span class="chip" data-amount="5000">5,000</span>
+            <span class="chip" data-amount="10000">10,000</span>
+            <span class="chip" data-amount="20000">20,000</span>
+            <span class="chip" data-amount="50000">50,000</span>
+          </div>
+        </div>
+
+        <div class="weight-section">
+          <label class="weight-toggle">
+            <input type="checkbox" id="weightMode">
+            <span class="toggle-track"></span>
+            权重调节模式
+          </label>
+          <div class="weight-sliders" id="weightSliders"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-calculate pulse" id="calcBtn">
+            计算分配方案 <span class="shortcut">⌘↵</span>
+          </button>
+          <button class="btn-outline" id="resetBtn">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div class="card" id="resultsCard">
+        <div class="card-accent-top"></div>
+        <div class="card-title"><span class="dot"></span>最优分配结果</div>
+        <div class="empty-state" id="emptyState">
+          <div class="icon">📐</div>
+          <p>设置比分与赔率后<br>点击计算即可查看<br>最优资金分配方案</p>
+        </div>
+        <div class="results-panel" id="resultsPanel">
+          <div class="summary-strip" id="summaryStrip"></div>
+          <div class="alloc-table-wrap">
+            <table class="alloc-table">
+              <thead>
+                <tr>
+                  <th>比分</th>
+                  <th>赔率</th>
+                  <th>投入金额</th>
+                  <th>占比</th>
+                  <th>中奖回报</th>
+                  <th>净利润</th>
+                </tr>
+              </thead>
+              <tbody id="allocBody"></tbody>
+            </table>
+          </div>
+          <div class="bar-section" id="barSection">
+            <div class="bar-title">资金分配可视化</div>
+            <div id="barChart"></div>
+          </div>
+          <div class="analysis-note" id="analysisNote"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-info">基于荷兰式等利润分配算法 · 假设选定比分中必有一个命中</div>
+</div>
+
+<!-- Score Picker (portal) -->
+<div class="score-picker-overlay" id="pickerOverlay"></div>
+<div class="score-picker" id="scorePicker">
+  <div class="picker-title">选择比分</div>
+  <div class="picker-grid" id="pickerGrid"></div>
+  <div class="picker-custom-row">
+    <span class="custom-label">自定义</span>
+    <input type="number" id="customHome" placeholder="主" min="0" max="9">
+    <span class="colon">:</span>
+    <input type="number" id="customAway" placeholder="客" min="0" max="9">
+  </div>
+  <button class="picker-confirm-btn" id="pickerConfirm">确认自定义比分</button>
+</div>
+
+<script>
+// ============ PRESET SCORES ============
+const PRESET_SCORES = [
+  { label: '0 球', scores: ['0:0','0:1','0:2','0:3','0:4'] },
+  { label: '1 球', scores: ['1:0','1:1','1:2','1:3','1:4'] },
+  { label: '2 球', scores: ['2:0','2:1','2:2','2:3','2:4'] },
+  { label: '3 球', scores: ['3:0','3:1','3:2','3:3'] },
+  { label: '4 球', scores: ['4:0','4:1','4:2','4:3'] },
+  { label: '5+ 球', scores: ['5:0','5:1','5:2','4:4','5:3'] },
+];
+
+const DEFAULT_SELECTED = ['1:0', '1:1', '2:1'];
+const DEFAULT_ODDS = { '1:0': 7.5, '1:1': 12.5, '2:1': 9.5, '3:1': 18, '2:0': 22 };
+
+// ============ STATE ============
+let scoreCount = 3;
+let selectedScores = [...DEFAULT_SELECTED];
+let manualOdds = { ...DEFAULT_ODDS };
+const MAX_SCORES = 5;
+const MIN_SCORES = 3;
+
+let pickerActive = false;
+let pickerRowIndex = -1;
+
+// ============ DOM ============
+const $ = id => document.getElementById(id);
+const $scoreRows = $('scoreRows');
+const $addBtn = $('addScoreBtn');
+const $calcBtn = $('calcBtn');
+const $resetBtn = $('resetBtn');
+const $weightMode = $('weightMode');
+const $weightSliders = $('weightSliders');
+const $resultsPanel = $('resultsPanel');
+const $emptyState = $('emptyState');
+const $summaryStrip = $('summaryStrip');
+const $allocBody = $('allocBody');
+const $barChart = $('barChart');
+const $analysisNote = $('analysisNote');
+const $pickerOverlay = $('pickerOverlay');
+const $scorePicker = $('scorePicker');
+const $pickerGrid = $('pickerGrid');
+const $scoreCountHint = $('scoreCountHint');
+const $amountInput = $('totalAmount');
+
+// ============ MATCH CARD EDIT ============
+$('editTeams').addEventListener('click', () => {
+  const card = $('matchCard');
+  card.classList.add('editing');
+  $('homeInput').focus();
+  $('homeInput').select();
+});
+
+function commitTeamEdit() {
+  const card = $('matchCard');
+  const h = $('homeInput').value.trim() || '主队';
+  const a = $('awayInput').value.trim() || '客队';
+  $('homeName').textContent = h;
+  $('awayName').textContent = a;
+  card.classList.remove('editing');
+}
+
+$('homeInput').addEventListener('blur', commitTeamEdit);
+$('awayInput').addEventListener('blur', commitTeamEdit);
+$('homeInput').addEventListener('keydown', e => { if (e.key === 'Enter') { $('awayInput').focus(); } });
+$('awayInput').addEventListener('keydown', e => { if (e.key === 'Enter') commitTeamEdit(); });
+
+// ============ SCORE PICKER ============
+function buildPickerGrid(currentScore) {
+  let html = '';
+  PRESET_SCORES.forEach(group => {
+    html += `<div class="picker-group-label">${group.label}</div>`;
+    html += '<div class="picker-group-scores">';
+    group.scores.forEach(s => {
+      const sel = s === currentScore ? ' selected' : '';
+      html += `<div class="picker-score-option${sel}" data-score="${s}">${s}</div>`;
+    });
+    html += '</div>';
+  });
+  $pickerGrid.innerHTML = html;
+
+  // Bind clicks
+  $pickerGrid.querySelectorAll('.picker-score-option').forEach(el => {
+    el.addEventListener('click', () => {
+      const score = el.dataset.score;
+      applyScoreSelection(pickerRowIndex, score);
+      closePicker();
+    });
+  });
+}
+
+function openPicker(rowIndex, currentScore) {
+  pickerRowIndex = rowIndex;
+  pickerActive = true;
+
+  buildPickerGrid(currentScore);
+
+  // Position picker near the clicked badge
+  const badge = document.querySelectorAll('.score-badge')[rowIndex];
+  if (badge) {
+    const rect = badge.getBoundingClientRect();
+    const pickerW = 290;
+    const pickerH = 460;
+    let left = rect.left;
+    let top = rect.bottom + 6;
+
+    if (left + pickerW > window.innerWidth - 16) left = window.innerWidth - pickerW - 16;
+    if (left < 16) left = 16;
+    if (top + pickerH > window.innerHeight - 16) top = rect.top - pickerH - 6;
+
+    $scorePicker.style.left = left + 'px';
+    $scorePicker.style.top = top + 'px';
+  }
+
+  $pickerOverlay.classList.add('active');
+  $scorePicker.classList.add('active');
+
+  // Highlight caret
+  const caret = badge?.querySelector('.caret');
+  if (caret) caret.classList.add('open');
+
+  // Reset custom inputs
+  $('customHome').value = '';
+  $('customAway').value = '';
+}
+
+function closePicker() {
+  pickerActive = false;
+  pickerRowIndex = -1;
+  $pickerOverlay.classList.remove('active');
+  $scorePicker.classList.remove('active');
+  document.querySelectorAll('.score-badge .caret').forEach(c => c.classList.remove('open'));
+}
+
+function applyScoreSelection(rowIndex, score) {
+  if (rowIndex < 0 || rowIndex >= selectedScores.length) return;
+
+  // Check duplicate
+  const existingIdx = selectedScores.indexOf(score);
+  if (existingIdx !== -1 && existingIdx !== rowIndex) {
+    // Swap with existing
+    const old = selectedScores[rowIndex];
+    selectedScores[rowIndex] = score;
+    selectedScores[existingIdx] = old;
+    // Also swap odds
+    const oldOdds = manualOdds[score] || getDefaultOddsForScore(score);
+    manualOdds[score] = manualOdds[old] || getDefaultOddsForScore(old);
+    manualOdds[old] = oldOdds;
+  } else {
+    const old = selectedScores[rowIndex];
+    selectedScores[rowIndex] = score;
+    // Carry over odds only if not already set
+    if (!manualOdds[score]) {
+      manualOdds[score] = getDefaultOddsForScore(score);
+    }
+  }
+
+  renderScoreRows();
+}
+
+$pickerOverlay.addEventListener('click', closePicker);
+
+$('pickerConfirm').addEventListener('click', () => {
+  const h = parseInt($('customHome').value);
+  const a = parseInt($('customAway').value);
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
+  const score = `${h}:${a}`;
+  applyScoreSelection(pickerRowIndex, score);
+  closePicker();
+});
+
+// Close picker on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && pickerActive) closePicker();
+});
+
+// ============ RENDER SCORE ROWS ============
+function getDefaultOddsForScore(score) {
+  const map = {
+    '0:0': 10, '0:1': 8, '0:2': 15, '0:3': 30, '0:4': 80,
+    '1:0': 7.5, '1:1': 12.5, '1:2': 9.5, '1:3': 25, '1:4': 65,
+    '2:0': 9, '2:1': 8, '2:2': 18, '2:3': 35, '2:4': 90,
+    '3:0': 18, '3:1': 14, '3:2': 28, '3:3': 60,
+    '4:0': 40, '4:1': 30, '4:2': 40, '4:3': 70,
+    '5:0': 80, '5:1': 60, '5:2': 80, '4:4': 200, '5:3': 200,
+  };
+  return map[score] || 10;
+}
+
+function renderScoreRows() {
+  while (selectedScores.length < MIN_SCORES) {
+    const candidates = PRESET_SCORES.flatMap(g => g.scores).filter(s => !selectedScores.includes(s));
+    if (candidates.length === 0) break;
+    selectedScores.push(candidates[0]);
+  }
+
+  $scoreRows.innerHTML = '';
+  selectedScores.forEach((score, i) => {
+    const odds = manualOdds[score] ?? getDefaultOddsForScore(score);
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `
+      <span class="row-index">${i + 1}</span>
+      <div class="score-badge" data-index="${i}">
+        <span class="score-text">${score}</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="odds-wrapper">
+        <span class="odds-label-text">赔率</span>
+        <input type="number" class="odds-input" value="${odds}" step="0.1" min="1.01" data-index="${i}" placeholder="赔率">
+        <div class="quick-odds">
+          <span class="chip" data-odds="5.5">5.5</span>
+          <span class="chip" data-odds="7.5">7.5</span>
+          <span class="chip" data-odds="10">10</span>
+          <span class="chip" data-odds="15">15</span>
+        </div>
+      </div>
+      ${selectedScores.length > MIN_SCORES
+        ? `<button class="remove-btn" data-index="${i}" title="移除">×</button>`
+        : '<span style="width:26px;flex-shrink:0;margin-left:auto"></span>'}
+    `;
+    $scoreRows.appendChild(row);
+  });
+
+  $addBtn.disabled = selectedScores.length >= MAX_SCORES;
+  $scoreCountHint.textContent = `${selectedScores.length} / ${MAX_SCORES} 个比分`;
+
+  // === Bind events ===
+  // Score badge click → open picker
+  document.querySelectorAll('.score-badge').forEach(badge => {
+    badge.addEventListener('click', e => {
+      const idx = parseInt(badge.dataset.index);
+      openPicker(idx, selectedScores[idx]);
+    });
+  });
+
+  // Odds input change
+  document.querySelectorAll('.odds-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const idx = parseInt(inp.dataset.index);
+      const val = parseFloat(inp.value) || 1.01;
+      manualOdds[selectedScores[idx]] = Math.max(val, 1.01);
+    });
+  });
+
+  // Quick odds chips
+  document.querySelectorAll('.quick-odds .chip').forEach(chip => {
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      const oddsVal = parseFloat(chip.dataset.odds);
+      const row = chip.closest('.score-row');
+      const inp = row.querySelector('.odds-input');
+      const idx = parseInt(inp.dataset.index);
+      inp.value = oddsVal;
+      manualOdds[selectedScores[idx]] = oddsVal;
+      inp.focus();
+    });
+  });
+
+  // Remove button
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.index);
+      const score = selectedScores[idx];
+      if (selectedScores.length <= MIN_SCORES) return;
+      selectedScores.splice(idx, 1);
+      delete manualOdds[score];
+      renderScoreRows();
+      if ($weightMode.checked) renderWeightSlidersUI();
+    });
+  });
+
+  if ($weightMode.checked) renderWeightSlidersUI();
+}
+
+// ============ ADD SCORE ============
+$addBtn.addEventListener('click', () => {
+  if (selectedScores.length >= MAX_SCORES) return;
+  // Pick first unused preset score
+  const used = new Set(selectedScores);
+  const allScores = PRESET_SCORES.flatMap(g => g.scores);
+  const next = allScores.find(s => !used.has(s)) || '2:2';
+  selectedScores.push(next);
+  if (!manualOdds[next]) manualOdds[next] = getDefaultOddsForScore(next);
+  renderScoreRows();
+});
+
+// ============ AMOUNT PRESETS ============
+document.querySelectorAll('.amount-presets .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    $amountInput.value = chip.dataset.amount;
+    $amountInput.focus();
+  });
+});
+
+// ============ WEIGHT MODE ============
+$weightMode.addEventListener('change', () => {
+  if ($weightMode.checked) {
+    $weightSliders.classList.add('visible');
+    renderWeightSlidersUI();
+  } else {
+    $weightSliders.classList.remove('visible');
+  }
+});
+
+function renderWeightSlidersUI() {
+  $weightSliders.innerHTML = '';
+  selectedScores.forEach((score, i) => {
+    const div = document.createElement('div');
+    div.className = 'weight-item';
+    div.innerHTML = `
+      <label>${score}</label>
+      <input type="range" min="1" max="100" value="50" class="weight-slider" data-index="${i}">
+      <span class="weight-val">50</span>
+    `;
+    $weightSliders.appendChild(div);
+  });
+  document.querySelectorAll('.weight-slider').forEach(s => {
+    s.addEventListener('input', e => {
+      e.target.nextElementSibling.textContent = e.target.value;
+    });
+  });
+}
+
+// ============ COLLECT DATA ============
+function collectData() {
+  const oddsInputs = document.querySelectorAll('.odds-input');
+  const scores = [];
+  oddsInputs.forEach((inp, i) => {
+    const score = selectedScores[i];
+    const [h, a] = score.split(':').map(Number);
+    const odds = parseFloat(inp.value) || manualOdds[score] || 10;
+    scores.push({ home: h, away: a, score, odds: Math.max(odds, 1.01) });
+  });
+  return scores;
+}
+
+function getWeights() {
+  if (!$weightMode.checked) return null;
+  const sliders = document.querySelectorAll('.weight-slider');
+  return Array.from(sliders).map(s => parseInt(s.value) || 50);
+}
+
+// ============ CALCULATION ============
+function calculate(scores, totalAmount, weights) {
+  const S = scores.reduce((sum, s) => sum + 1 / s.odds, 0);
+  let allocations, guaranteedReturn, totalProfit;
+
+  if (weights) {
+    const totalW = weights.reduce((a, b) => a + b, 0);
+    const raw = scores.map((s, i) => (weights[i] / totalW) * (1 / s.odds));
+    const rawSum = raw.reduce((a, b) => a + b, 0);
+    allocations = raw.map(r => (r / rawSum) * totalAmount);
+    const returns = allocations.map((x, i) => x * scores[i].odds);
+    guaranteedReturn = Math.min(...returns);
+    totalProfit = guaranteedReturn - totalAmount;
+  } else {
+    allocations = scores.map(s => (totalAmount * (1 / s.odds)) / S);
+    guaranteedReturn = totalAmount / S;
+    totalProfit = guaranteedReturn - totalAmount;
+  }
+
+  const returns = allocations.map((x, i) => x * scores[i].odds);
+  const profits = returns.map(r => r - totalAmount);
+  const percentages = allocations.map(a => (a / totalAmount) * 100);
+
+  return {
+    scores, allocations, percentages, returns, profits,
+    totalAmount, guaranteedReturn, totalProfit,
+    reciprocalSum: S, isArbitrage: S < 1,
+    weighted: !!weights, weights
+  };
+}
+
+// ============ RENDER RESULTS ============
+function renderResults(r) {
+  $emptyState.style.display = 'none';
+  $resultsPanel.classList.add('visible');
+
+  const fmt = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt0 = n => n.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
+  const absFmt = n => fmt0(Math.abs(n));
+
+  // --- Summary ---
+  const profitClass = r.totalProfit > 0.01 ? 'pos' : '';
+  const pSign = r.totalProfit >= 0 ? '+' : '';
+  $summaryStrip.innerHTML = `
+    <div class="stat-card total">
+      <div class="stat-value gold">¥${fmt0(r.totalAmount)}</div>
+      <div class="stat-label">总投注金额</div>
+    </div>
+    <div class="stat-card ret">
+      <div class="stat-value green">¥${fmt0(r.guaranteedReturn)}</div>
+      <div class="stat-label">最低回报</div>
+    </div>
+    <div class="stat-card profit ${profitClass}">
+      <div class="stat-value ${r.totalProfit >= 0 ? 'green' : 'red'}">${pSign}¥${absFmt(r.totalProfit)}</div>
+      <div class="stat-label">${r.totalProfit >= 0 ? '最低盈利' : '最低亏损'} (${pSign}${(Math.abs(r.totalProfit)/r.totalAmount*100).toFixed(2)}%)</div>
+    </div>
+  `;
+
+  // --- Table ---
+  // Find best profit row
+  const bestIdx = r.profits.indexOf(Math.max(...r.profits));
+  $allocBody.innerHTML = r.scores.map((s, i) => `
+    <tr class="${i === bestIdx ? 'highlight-row' : ''}">
+      <td class="sc">${s.score}</td>
+      <td style="color:var(--accent-light)">${s.odds.toFixed(1)}</td>
+      <td class="am">¥${fmt(r.allocations[i])}</td>
+      <td class="pct">${r.percentages[i].toFixed(1)}%</td>
+      <td class="rt">¥${fmt(r.returns[i])}</td>
+      <td class="pf ${r.profits[i] >= 0 ? 'pos' : 'neg'}">
+        ${r.profits[i] >= 0 ? '+' : ''}¥${fmt(r.profits[i])}
+      </td>
+    </tr>
+  `).join('');
+
+  // --- Bar Chart ---
+  const maxPct = Math.max(...r.percentages);
+  $barChart.innerHTML = r.scores.map((s, i) => `
+    <div class="bar-row">
+      <span class="bar-score-label">${s.score}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:0%"></div>
+      </div>
+      <span class="bar-val">¥${fmt(r.allocations[i])}</span>
+      <span class="bar-pct-label">${r.percentages[i].toFixed(1)}%</span>
+    </div>
+  `).join('');
+
+  // Animate bars
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bar-fill').forEach((bar, i) => {
+        bar.style.width = (r.percentages[i] / maxPct * 100).toFixed(0) + '%';
+      });
+    });
+  });
+
+  // --- Analysis ---
+  let note = '';
+  if (!r.weighted) {
+    note += `<p><strong class="hl">算法：等利润荷兰式 (Dutching)</strong></p>`;
+    note += `<p><span class="formula">xᵢ = T × (1/oᵢ) / Σ(1/oⱼ)</span></p>`;
+    note += `<p>赔率倒数和：<span class="formula">Σ(1/o) = ${r.reciprocalSum.toFixed(4)}</span></p>`;
+
+    if (r.isArbitrage) {
+      note += `<p style="margin-top:8px"><span class="badge-arb">套利机会</span> 赔率倒数和 &lt; 1，<span class="good">任意比分命中均盈利 ¥${fmt0(r.totalProfit)}</span></p>`;
+    } else if (Math.abs(r.reciprocalSum - 1) < 0.0005) {
+      note += `<p style="margin-top:8px"><span class="badge-even">刚好保本</span> 赔率倒数和 ≈ 1</p>`;
+    } else {
+      note += `<p style="margin-top:8px"><span class="badge-loss">无法保本</span> 等回报分配下 <span class="warn">最低亏损 ¥${absFmt(r.totalProfit)}</span></p>`;
+    }
+    note += `<p style="margin-top:6px;color:var(--text-muted)">不论哪个比分命中，回报均为 <span class="hl">¥${fmt0(r.guaranteedReturn)}</span></p>`;
+  } else {
+    note += `<p><strong class="hl">算法：加权分配</strong></p>`;
+    note += `<p>权重 [${r.weights.join(', ')}] → 不同比分命中回报不同</p>`;
+    if (r.profits.every(p => p >= -0.01) && r.totalProfit > 0.01) {
+      note += `<p style="margin-top:8px"><span class="badge-arb">全部盈利</span> 最低盈利 <span class="good">¥${fmt0(r.totalProfit)}</span></p>`;
+    } else if (r.totalProfit >= -0.01) {
+      note += `<p style="margin-top:8px"><span class="badge-even">全部保本</span></p>`;
+    } else {
+      note += `<p style="margin-top:8px"><span class="badge-loss">部分亏损</span> <span class="warn">最低回报 ¥${fmt0(r.guaranteedReturn)}</span></p>`;
+    }
+  }
+
+  $analysisNote.innerHTML = note;
+}
+
+// ============ HANDLE CALCULATE ============
+function handleCalculate() {
+  const totalAmount = parseFloat($amountInput.value) || 0;
+  if (totalAmount <= 0) {
+    showToast('请输入有效的投注金额');
+    return;
+  }
+
+  const scores = collectData();
+  if (scores.length < MIN_SCORES) {
+    showToast(`请至少设置 ${MIN_SCORES} 个比分`);
+    return;
+  }
+
+  const scoreKeys = scores.map(s => s.score);
+  if (new Set(scoreKeys).size !== scoreKeys.length) {
+    showToast('存在重复比分，请修改');
+    return;
+  }
+
+  const weights = getWeights();
+  const result = calculate(scores, totalAmount, weights);
+  renderResults(result);
+
+  // Scroll to results on mobile
+  if (window.innerWidth < 900) {
+    $('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+$calcBtn.addEventListener('click', handleCalculate);
+
+// ============ RESET ============
+$resetBtn.addEventListener('click', () => {
+  selectedScores = [...DEFAULT_SELECTED];
+  manualOdds = { ...DEFAULT_ODDS };
+  renderScoreRows();
+  $weightMode.checked = false;
+  $weightSliders.classList.remove('visible');
+  $amountInput.value = '10000';
+  $('homeName').textContent = '西班牙';
+  $('awayName').textContent = '葡萄牙';
+  $('homeInput').value = '西班牙';
+  $('awayInput').value = '葡萄牙';
+  $('matchCard').classList.remove('editing');
+  $resultsPanel.classList.remove('visible');
+  $emptyState.style.display = '';
+});
+
+// ============ TOAST ============
+function showToast(msg) {
+  let toast = document.querySelector('.toast-msg');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'toast-msg';
+    toast.style.cssText = `
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 200;
+      padding: 10px 20px; background: rgba(230,29,37,0.9); color: #fff;
+      border-radius: 8px; font-size: 0.85rem; pointer-events: none;
+      animation: toastIn 0.3s ease-out;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  toast.style.animation = 'none';
+  toast.offsetHeight; // reflow
+  toast.style.animation = 'toastIn 0.3s ease-out';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.style.display = 'none'; }, 2000);
+}
+
+// Add toast animation
+const toastStyle = document.createElement('style');
+toastStyle.textContent = '@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }';
+document.head.appendChild(toastStyle);
+
+// ============ KEYBOARD ============
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    handleCalculate();
+  }
+});
+
+// ============ INPUT CHANGE → BUTTON PULSE ============
+$amountInput.addEventListener('input', () => $calcBtn.classList.add('pulse'));
+document.addEventListener('change', e => {
+  if (e.target.classList.contains('odds-input')) $calcBtn.classList.add('pulse');
+});
+$calcBtn.addEventListener('click', () => $calcBtn.classList.remove('pulse'));
+
+// ============ INIT ============
+renderScoreRows();
+</script>
+</body>
+</html>
