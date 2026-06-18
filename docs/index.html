@@ -1154,7 +1154,7 @@ body::before {
 }
 
 .schedule-body.open {
-  max-height: 2000px;
+  max-height: 8000px;
   opacity: 1;
 }
 
@@ -1345,6 +1345,221 @@ body::before {
   background: rgba(42,57,141,0.3);
   border-radius: 3px;
   font-weight: 500;
+}
+
+/* ===== Daily Schedule ===== */
+.daily-schedule {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.ds-title {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ds-stage-switch {
+  display: flex;
+  gap: 0;
+  background: rgba(255,255,255,0.04);
+  border-radius: 20px;
+  padding: 3px;
+  margin-bottom: 16px;
+  width: fit-content;
+}
+
+.ds-stage-btn {
+  padding: 6px 16px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ds-stage-btn.active {
+  background: var(--wc-red);
+  color: #fff;
+  font-weight: 500;
+}
+
+.ds-stage-btn:hover:not(.active) {
+  color: var(--wc-gold-light);
+}
+
+.date-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.date-nav::-webkit-scrollbar { height: 4px; }
+.date-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.date-tab {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 64px;
+  line-height: 1.3;
+}
+
+.date-tab .dt-month { font-size: 0.65rem; opacity: 0.6; display: block; }
+.date-tab .dt-day { font-weight: 600; font-size: 0.9rem; }
+.date-tab .dt-count { font-size: 0.62rem; opacity: 0.5; display: block; margin-top: 2px; }
+
+.date-tab:hover {
+  border-color: rgba(230,29,37,0.4);
+  color: var(--wc-red-light);
+}
+
+.date-tab.active {
+  background: rgba(230,29,37,0.12);
+  border-color: var(--wc-red);
+  color: var(--wc-red-light);
+}
+
+.date-tab.today {
+  border-color: var(--wc-gold);
+}
+
+.date-tab.today::after {
+  content: '';
+  display: block;
+  width: 5px; height: 5px;
+  background: var(--wc-gold-light);
+  border-radius: 50%;
+  margin: 3px auto 0;
+}
+
+.daily-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daily-date-header {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  padding-bottom: 6px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(230,29,37,0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-date-header .dd-stage-tag {
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(230,29,37,0.12);
+  color: var(--wc-red-light);
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.daily-match-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-xs);
+  transition: all 0.2s;
+}
+
+.daily-match-card:hover {
+  border-color: rgba(230,29,37,0.25);
+  background: rgba(230,29,37,0.03);
+}
+
+.daily-match-card .dm-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--wc-red-light);
+  white-space: nowrap;
+  min-width: 42px;
+}
+
+.daily-match-card .dm-teams {
+  flex: 1;
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  min-width: 0;
+}
+
+.daily-match-card .dm-group {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  background: rgba(42,57,141,0.35);
+  border-radius: 3px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.daily-match-card .dm-group.knockout {
+  background: rgba(212,168,67,0.15);
+  color: var(--wc-gold-light);
+}
+
+.daily-match-card .dm-group.final {
+  background: rgba(212,168,67,0.25);
+  color: var(--wc-gold-light);
+  font-weight: 700;
+}
+
+.daily-match-card .dm-venue {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .daily-match-card .dm-venue { display: none; }
+  .daily-match-card .dm-time { font-size: 0.7rem; min-width: 36px; }
+  .daily-match-card .dm-teams { font-size: 0.76rem; }
+}
+
+.daily-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.ds-time-note {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+  margin-top: 14px;
+  text-align: center;
 }
 
 </style>
@@ -1555,23 +1770,47 @@ body::before {
             </div>
           </div>
 
+          <!-- ===== Daily Schedule ===== -->
+          <div class="daily-schedule" id="dailySchedule">
+            <div class="ds-title">📅 每日赛程</div>
+
+            <div class="ds-stage-switch" id="dsStageSwitch">
+              <button class="ds-stage-btn active" data-stage="group" onclick="switchStage('group')">小组赛</button>
+              <button class="ds-stage-btn" data-stage="round32" onclick="switchStage('round32')">1/16决赛</button>
+              <button class="ds-stage-btn" data-stage="round16" onclick="switchStage('round16')">1/8决赛</button>
+              <button class="ds-stage-btn" data-stage="qf" onclick="switchStage('qf')">1/4决赛</button>
+              <button class="ds-stage-btn" data-stage="sf_final" onclick="switchStage('sf_final')">半决赛/决赛</button>
+            </div>
+
+            <div class="date-nav" id="dateNav"></div>
+
+            <div class="daily-matches" id="dailyMatches"></div>
+
+            <p class="ds-time-note">⚠️ 以上时间为近似北京时间（UTC+8），最终以官方公布为准</p>
+          </div>
+
           <div class="highlight-matches">
             <div class="hl-title">🔥 小组赛必看场次（北京时间）</div>
             <div class="hl-grid">
               <div class="hl-match">
-                <span class="hl-date-tag">6/14 06:00</span>
+                <span class="hl-date-tag">6/12 03:00</span>
+                <span class="hl-teams">墨西哥 vs 南非</span>
+                <span class="hl-group">A组 · 揭幕战</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/13 09:00</span>
                 <span class="hl-teams">巴西 vs 摩洛哥</span>
                 <span class="hl-group">C组</span>
               </div>
               <div class="hl-match">
                 <span class="hl-date-tag">6/16 03:00</span>
-                <span class="hl-teams">比利时 vs 埃及</span>
-                <span class="hl-group">G组</span>
+                <span class="hl-teams">法国 vs 塞内加尔</span>
+                <span class="hl-group">I组</span>
               </div>
               <div class="hl-match">
                 <span class="hl-date-tag">6/17 03:00</span>
-                <span class="hl-teams">法国 vs 塞内加尔</span>
-                <span class="hl-group">I组</span>
+                <span class="hl-teams">比利时 vs 埃及</span>
+                <span class="hl-group">G组</span>
               </div>
               <div class="hl-match">
                 <span class="hl-date-tag">6/18 04:00</span>
@@ -1594,6 +1833,11 @@ body::before {
                 <span class="hl-group">J组</span>
               </div>
               <div class="hl-match">
+                <span class="hl-date-tag">6/25 07:00</span>
+                <span class="hl-teams">厄瓜多尔 vs 德国</span>
+                <span class="hl-group">E组</span>
+              </div>
+              <div class="hl-match">
                 <span class="hl-date-tag">6/27 08:00</span>
                 <span class="hl-teams">西班牙 vs 乌拉圭</span>
                 <span class="hl-group">H组</span>
@@ -1602,6 +1846,11 @@ body::before {
                 <span class="hl-date-tag">6/28 07:30</span>
                 <span class="hl-teams">葡萄牙 vs 哥伦比亚</span>
                 <span class="hl-group">K组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">7/20 03:00</span>
+                <span class="hl-teams">🏆 决赛 · MetLife</span>
+                <span class="hl-group">FINAL</span>
               </div>
             </div>
           </div>
@@ -2190,6 +2439,273 @@ $calcBtn.addEventListener('click', () => $calcBtn.classList.remove('pulse'));
 
 // ============ INIT ============
 renderScoreRows();
+
+// ============ DAILY SCHEDULE DATA ============
+// All times in approximate Beijing time (UTC+8), dates are Beijing dates
+var ALL_MATCHES = [
+  // ===== GROUP STAGE =====
+  // June 12 (Thu) - Match Day 1
+  {d:"0612",t:"03:00",h:"墨西哥",a:"南非",g:"A组",v:"墨西哥城体育场",s:"group",n:"揭幕战"},
+  {d:"0612",t:"12:00",h:"韩国",a:"捷克",g:"A组",v:"瓜达拉哈拉体育场",s:"group"},
+
+  // June 13 (Fri) - Match Day 2
+  {d:"0613",t:"03:00",h:"加拿大",a:"波黑",g:"B组",v:"多伦多体育场",s:"group"},
+  {d:"0613",t:"09:00",h:"美国",a:"巴拉圭",g:"D组",v:"洛杉矶SoFi体育场",s:"group"},
+
+  // June 14 (Sat) - Match Day 3
+  {d:"0614",t:"03:00",h:"卡塔尔",a:"瑞士",g:"B组",v:"旧金山湾区体育场",s:"group"},
+  {d:"0614",t:"06:00",h:"巴西",a:"摩洛哥",g:"C组",v:"纽约大都会体育场",s:"group"},
+  {d:"0614",t:"09:00",h:"海地",a:"苏格兰",g:"C组",v:"波士顿体育场",s:"group"},
+  {d:"0614",t:"12:00",h:"澳大利亚",a:"土耳其",g:"D组",v:"温哥华BC Place",s:"group"},
+
+  // June 15 (Sun) - Match Day 4
+  {d:"0615",t:"01:00",h:"德国",a:"库拉索",g:"E组",v:"休斯顿体育场",s:"group"},
+  {d:"0615",t:"04:00",h:"荷兰",a:"日本",g:"F组",v:"达拉斯AT&T体育场",s:"group"},
+  {d:"0615",t:"07:00",h:"科特迪瓦",a:"厄瓜多尔",g:"E组",v:"费城体育场",s:"group"},
+  {d:"0615",t:"10:00",h:"瑞典",a:"突尼斯",g:"F组",v:"蒙特雷体育场",s:"group"},
+
+  // June 16 (Mon) - Match Day 5
+  {d:"0616",t:"00:00",h:"西班牙",a:"佛得角",g:"H组",v:"亚特兰大体育场",s:"group"},
+  {d:"0616",t:"03:00",h:"比利时",a:"埃及",g:"G组",v:"西雅图体育场",s:"group"},
+  {d:"0616",t:"06:00",h:"沙特",a:"乌拉圭",g:"H组",v:"迈阿密体育场",s:"group"},
+  {d:"0616",t:"09:00",h:"伊朗",a:"新西兰",g:"G组",v:"洛杉矶体育场",s:"group"},
+
+  // June 17 (Tue) - Match Day 6
+  {d:"0617",t:"03:00",h:"法国",a:"塞内加尔",g:"I组",v:"纽约大都会体育场",s:"group"},
+  {d:"0617",t:"06:00",h:"挪威",a:"伊拉克",g:"I组",v:"波士顿体育场",s:"group"},
+  {d:"0617",t:"09:00",h:"阿根廷",a:"阿尔及利亚",g:"J组",v:"堪萨斯城体育场",s:"group"},
+  {d:"0617",t:"12:00",h:"奥地利",a:"约旦",g:"J组",v:"旧金山湾区体育场",s:"group"},
+
+  // June 18 (Wed) - Match Day 7
+  {d:"0618",t:"01:00",h:"葡萄牙",a:"刚果(金)",g:"K组",v:"休斯顿体育场",s:"group"},
+  {d:"0618",t:"04:00",h:"英格兰",a:"克罗地亚",g:"L组",v:"达拉斯AT&T体育场",s:"group"},
+  {d:"0618",t:"07:00",h:"加纳",a:"巴拿马",g:"L组",v:"多伦多体育场",s:"group"},
+  {d:"0618",t:"10:00",h:"乌兹别克斯坦",a:"哥伦比亚",g:"K组",v:"墨西哥城体育场",s:"group"},
+
+  // June 19 (Thu) - Match Day 8
+  {d:"0619",t:"00:00",h:"南非",a:"捷克",g:"A组",v:"亚特兰大体育场",s:"group"},
+  {d:"0619",t:"03:00",h:"瑞士",a:"波黑",g:"B组",v:"洛杉矶体育场",s:"group"},
+  {d:"0619",t:"06:00",h:"加拿大",a:"卡塔尔",g:"B组",v:"温哥华BC Place",s:"group"},
+  {d:"0619",t:"09:00",h:"墨西哥",a:"韩国",g:"A组",v:"瓜达拉哈拉体育场",s:"group"},
+
+  // June 20 (Fri) - Match Day 9
+  {d:"0620",t:"03:00",h:"美国",a:"澳大利亚",g:"D组",v:"西雅图体育场",s:"group"},
+  {d:"0620",t:"03:00",h:"苏格兰",a:"摩洛哥",g:"C组",v:"波士顿体育场",s:"group"},
+  {d:"0620",t:"09:00",h:"巴西",a:"海地",g:"C组",v:"费城体育场",s:"group"},
+  {d:"0620",t:"12:00",h:"巴拉圭",a:"土耳其",g:"D组",v:"旧金山湾区体育场",s:"group"},
+
+  // June 21 (Sat) - Match Day 10
+  {d:"0621",t:"01:00",h:"荷兰",a:"瑞典",g:"F组",v:"休斯顿体育场",s:"group"},
+  {d:"0621",t:"04:00",h:"德国",a:"科特迪瓦",g:"E组",v:"多伦多体育场",s:"group"},
+  {d:"0621",t:"08:00",h:"厄瓜多尔",a:"库拉索",g:"E组",v:"堪萨斯城体育场",s:"group"},
+  {d:"0621",t:"12:00",h:"突尼斯",a:"日本",g:"F组",v:"蒙特雷体育场",s:"group"},
+
+  // June 22 (Sun) - Match Day 11
+  {d:"0622",t:"00:00",h:"西班牙",a:"沙特",g:"H组",v:"亚特兰大体育场",s:"group"},
+  {d:"0622",t:"03:00",h:"比利时",a:"伊朗",g:"G组",v:"洛杉矶体育场",s:"group"},
+  {d:"0622",t:"06:00",h:"乌拉圭",a:"佛得角",g:"H组",v:"迈阿密体育场",s:"group"},
+  {d:"0622",t:"09:00",h:"新西兰",a:"埃及",g:"G组",v:"温哥华BC Place",s:"group"},
+
+  // June 23 (Mon) - Match Day 12
+  {d:"0623",t:"01:00",h:"阿根廷",a:"奥地利",g:"J组",v:"达拉斯AT&T体育场",s:"group"},
+  {d:"0623",t:"05:00",h:"法国",a:"伊拉克",g:"I组",v:"费城体育场",s:"group"},
+  {d:"0623",t:"08:00",h:"挪威",a:"塞内加尔",g:"I组",v:"纽约大都会体育场",s:"group"},
+  {d:"0623",t:"11:00",h:"约旦",a:"阿尔及利亚",g:"J组",v:"旧金山湾区体育场",s:"group"},
+
+  // June 24 (Tue) - Match Day 13
+  {d:"0624",t:"01:00",h:"葡萄牙",a:"乌兹别克斯坦",g:"K组",v:"休斯顿体育场",s:"group"},
+  {d:"0624",t:"04:00",h:"英格兰",a:"加纳",g:"L组",v:"波士顿体育场",s:"group"},
+  {d:"0624",t:"07:00",h:"巴拿马",a:"克罗地亚",g:"L组",v:"多伦多体育场",s:"group"},
+  {d:"0624",t:"10:00",h:"哥伦比亚",a:"刚果(金)",g:"K组",v:"瓜达拉哈拉体育场",s:"group"},
+
+  // June 25 (Wed) - Match Day 14 (final group round begins)
+  {d:"0625",t:"03:00",h:"加拿大",a:"瑞士",g:"B组",v:"温哥华BC Place",s:"group"},
+  {d:"0625",t:"03:00",h:"卡塔尔",a:"波黑",g:"B组",v:"西雅图体育场",s:"group"},
+  {d:"0625",t:"06:00",h:"苏格兰",a:"巴西",g:"C组",v:"迈阿密体育场",s:"group"},
+  {d:"0625",t:"06:00",h:"摩洛哥",a:"海地",g:"C组",v:"亚特兰大体育场",s:"group"},
+  {d:"0625",t:"09:00",h:"墨西哥",a:"捷克",g:"A组",v:"墨西哥城体育场",s:"group"},
+  {d:"0625",t:"09:00",h:"韩国",a:"南非",g:"A组",v:"蒙特雷体育场",s:"group"},
+
+  // June 26 (Thu) - Match Day 15
+  {d:"0626",t:"04:00",h:"厄瓜多尔",a:"德国",g:"E组",v:"纽约大都会体育场",s:"group"},
+  {d:"0626",t:"04:00",h:"库拉索",a:"科特迪瓦",g:"E组",v:"费城体育场",s:"group"},
+  {d:"0626",t:"07:00",h:"突尼斯",a:"荷兰",g:"F组",v:"堪萨斯城体育场",s:"group"},
+  {d:"0626",t:"07:00",h:"日本",a:"瑞典",g:"F组",v:"达拉斯AT&T体育场",s:"group"},
+  {d:"0626",t:"10:00",h:"美国",a:"土耳其",g:"D组",v:"洛杉矶体育场",s:"group"},
+  {d:"0626",t:"10:00",h:"巴拉圭",a:"澳大利亚",g:"D组",v:"旧金山湾区体育场",s:"group"},
+
+  // June 27 (Fri) - Match Day 16
+  {d:"0627",t:"03:00",h:"挪威",a:"法国",g:"I组",v:"波士顿体育场",s:"group"},
+  {d:"0627",t:"03:00",h:"塞内加尔",a:"伊拉克",g:"I组",v:"多伦多体育场",s:"group"},
+  {d:"0627",t:"08:00",h:"乌拉圭",a:"西班牙",g:"H组",v:"瓜达拉哈拉体育场",s:"group"},
+  {d:"0627",t:"08:00",h:"佛得角",a:"沙特",g:"H组",v:"休斯顿体育场",s:"group"},
+  {d:"0627",t:"11:00",h:"新西兰",a:"比利时",g:"G组",v:"温哥华BC Place",s:"group"},
+  {d:"0627",t:"11:00",h:"埃及",a:"伊朗",g:"G组",v:"西雅图体育场",s:"group"},
+
+  // June 28 (Sat) - Match Day 17 (final group day)
+  {d:"0628",t:"05:00",h:"巴拿马",a:"英格兰",g:"L组",v:"纽约大都会体育场",s:"group"},
+  {d:"0628",t:"05:00",h:"克罗地亚",a:"加纳",g:"L组",v:"费城体育场",s:"group"},
+  {d:"0628",t:"07:30",h:"哥伦比亚",a:"葡萄牙",g:"K组",v:"迈阿密体育场",s:"group"},
+  {d:"0628",t:"07:30",h:"乌兹别克斯坦",a:"刚果(金)",g:"K组",v:"亚特兰大体育场",s:"group"},
+  {d:"0628",t:"10:00",h:"约旦",a:"阿根廷",g:"J组",v:"达拉斯AT&T体育场",s:"group"},
+  {d:"0628",t:"10:00",h:"阿尔及利亚",a:"奥地利",g:"J组",v:"堪萨斯城体育场",s:"group"},
+
+  // ===== ROUND OF 32 (1/16决赛) =====
+  {d:"0629",t:"03:00",h:"A2",a:"B2",g:"1/16",v:"洛杉矶SoFi体育场",s:"round32",n:"73"},
+  {d:"0629",t:"04:30",h:"E1",a:"A/B/C/D/F3",g:"1/16",v:"波士顿体育场",s:"round32",n:"74"},
+  {d:"0630",t:"01:00",h:"C1",a:"F2",g:"1/16",v:"休斯顿体育场",s:"round32",n:"76"},
+  {d:"0630",t:"09:00",h:"F1",a:"C2",g:"1/16",v:"蒙特雷体育场",s:"round32",n:"75"},
+  {d:"0630",t:"05:00",h:"I1",a:"C/D/F/G/H3",g:"1/16",v:"纽约大都会体育场",s:"round32",n:"77"},
+  {d:"0630",t:"01:00",h:"E2",a:"I2",g:"1/16",v:"达拉斯AT&T体育场",s:"round32",n:"78"},
+  {d:"0701",t:"09:00",h:"A1",a:"C/E/F/H/I3",g:"1/16",v:"墨西哥城体育场",s:"round32",n:"79"},
+  {d:"0701",t:"00:00",h:"L1",a:"E/H/I/J/K3",g:"1/16",v:"亚特兰大体育场",s:"round32",n:"80"},
+  {d:"0701",t:"08:00",h:"D1",a:"B/E/F/I/J3",g:"1/16",v:"旧金山湾区体育场",s:"round32",n:"81"},
+  {d:"0701",t:"04:00",h:"G1",a:"A/E/H/I/J3",g:"1/16",v:"西雅图体育场",s:"round32",n:"82"},
+  {d:"0702",t:"07:00",h:"K2",a:"L2",g:"1/16",v:"多伦多体育场",s:"round32",n:"83"},
+  {d:"0702",t:"03:00",h:"H1",a:"J2",g:"1/16",v:"洛杉矶SoFi体育场",s:"round32",n:"84"},
+  {d:"0702",t:"11:00",h:"B1",a:"E/F/G/I/J3",g:"1/16",v:"温哥华BC Place",s:"round32",n:"85"},
+  {d:"0703",t:"06:00",h:"J1",a:"H2",g:"1/16",v:"迈阿密体育场",s:"round32",n:"86"},
+  {d:"0703",t:"09:30",h:"K1",a:"D/E/I/J/L3",g:"1/16",v:"堪萨斯城体育场",s:"round32",n:"87"},
+  {d:"0703",t:"02:00",h:"D2",a:"G2",g:"1/16",v:"达拉斯AT&T体育场",s:"round32",n:"88"},
+
+  // ===== ROUND OF 16 (1/8决赛) =====
+  {d:"0704",t:"05:00",h:"W74",a:"W77",g:"1/8",v:"费城体育场",s:"round16",n:"89"},
+  {d:"0704",t:"01:00",h:"W73",a:"W75",g:"1/8",v:"休斯顿体育场",s:"round16",n:"90"},
+  {d:"0705",t:"04:00",h:"W76",a:"W78",g:"1/8",v:"纽约大都会体育场",s:"round16",n:"91"},
+  {d:"0705",t:"08:00",h:"W79",a:"W80",g:"1/8",v:"墨西哥城体育场",s:"round16",n:"92"},
+  {d:"0706",t:"03:00",h:"W83",a:"W84",g:"1/8",v:"达拉斯AT&T体育场",s:"round16",n:"93"},
+  {d:"0706",t:"08:00",h:"W81",a:"W82",g:"1/8",v:"西雅图体育场",s:"round16",n:"94"},
+  {d:"0707",t:"00:00",h:"W86",a:"W88",g:"1/8",v:"亚特兰大体育场",s:"round16",n:"95"},
+  {d:"0707",t:"04:00",h:"W85",a:"W87",g:"1/8",v:"温哥华BC Place",s:"round16",n:"96"},
+
+  // ===== QUARTER-FINALS =====
+  {d:"0709",t:"04:00",h:"W89",a:"W90",g:"1/4",v:"波士顿体育场",s:"qf",n:"97"},
+  {d:"0710",t:"03:00",h:"W93",a:"W94",g:"1/4",v:"洛杉矶SoFi体育场",s:"qf",n:"98"},
+  {d:"0711",t:"05:00",h:"W91",a:"W92",g:"1/4",v:"迈阿密体育场",s:"qf",n:"99"},
+  {d:"0711",t:"09:00",h:"W95",a:"W96",g:"1/4",v:"堪萨斯城体育场",s:"qf",n:"100"},
+
+  // ===== SEMI-FINALS =====
+  {d:"0714",t:"03:00",h:"W97",a:"W98",g:"半决赛",v:"达拉斯AT&T体育场",s:"sf_final",n:"101"},
+  {d:"0715",t:"03:00",h:"W99",a:"W100",g:"半决赛",v:"亚特兰大体育场",s:"sf_final",n:"102"},
+
+  // ===== THIRD PLACE & FINAL =====
+  {d:"0718",t:"05:00",h:"L101",a:"L102",g:"季军赛",v:"迈阿密体育场",s:"sf_final",n:"103"},
+  {d:"0720",t:"03:00",h:"W101",a:"W102",g:"🏆 决赛",v:"纽约大都会体育场",s:"sf_final",n:"104"}
+];
+
+// Stage definitions
+var STAGES = {
+  group: {label:'小组赛', dates:[]},
+  round32: {label:'1/16决赛', dates:[]},
+  round16: {label:'1/8决赛', dates:[]},
+  qf: {label:'1/4决赛', dates:[]},
+  sf_final: {label:'半决赛/决赛', dates:[]}
+};
+var currentStage = 'group';
+
+// Build date index
+var matchesByDate = {};
+ALL_MATCHES.forEach(function(m) {
+  if (!matchesByDate[m.d]) matchesByDate[m.d] = [];
+  matchesByDate[m.d].push(m);
+  // Track stages
+  if (STAGES[m.s]) {
+    if (STAGES[m.s].dates.indexOf(m.d) === -1) STAGES[m.s].dates.push(m.d);
+  }
+});
+
+// Sort dates within each stage
+Object.keys(STAGES).forEach(function(s) {
+  STAGES[s].dates.sort();
+});
+
+function switchStage(stage) {
+  currentStage = stage;
+  // Update stage buttons
+  document.querySelectorAll('.ds-stage-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.stage === stage);
+  });
+  renderDateNav();
+  var dates = STAGES[stage].dates;
+  if (dates.length > 0) {
+    selectDate(dates[0]);
+  } else {
+    document.getElementById('dailyMatches').innerHTML = '<div class="daily-empty">暂无数据</div>';
+  }
+}
+
+function renderDateNav() {
+  var dates = STAGES[currentStage].dates;
+  var nav = document.getElementById('dateNav');
+  var html = '';
+  var today = new Date();
+  var todayStr = String(today.getMonth() + 1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+
+  dates.forEach(function(d) {
+    var m = d.substring(0,2);
+    var day = d.substring(2);
+    var count = (matchesByDate[d] || []).length;
+    var monthStr = parseInt(m) + '月';
+    var todayClass = (d === todayStr) ? ' today' : '';
+
+    html += '<button class="date-tab' + todayClass + '" data-date="' + d + '" onclick="selectDate(\'' + d + '\')">';
+    html += '<span class="dt-month">' + monthStr + '</span>';
+    html += '<span class="dt-day">' + parseInt(day) + '</span>';
+    html += '<span class="dt-count">' + count + '场</span>';
+    html += '</button>';
+  });
+
+  nav.innerHTML = html;
+}
+
+function selectDate(dateStr) {
+  // Update active tab
+  document.querySelectorAll('.date-tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.dataset.date === dateStr);
+  });
+
+  // Render matches
+  var matches = matchesByDate[dateStr] || [];
+  var container = document.getElementById('dailyMatches');
+  var m = dateStr.substring(0,2);
+  var day = dateStr.substring(2);
+  var dateLabel = parseInt(m) + '月' + parseInt(day) + '日';
+  var stageLabel = STAGES[currentStage].label;
+
+  var html = '<div class="daily-date-header">';
+  html += '<span>' + dateLabel + '</span>';
+  html += '<span class="dd-stage-tag">' + stageLabel + '</span>';
+  html += '<span style="font-size:0.65rem;color:var(--text-muted);margin-left:auto;">' + matches.length + '场比赛</span>';
+  html += '</div>';
+
+  if (matches.length === 0) {
+    html += '<div class="daily-empty">该日无比赛安排</div>';
+  } else {
+    matches.forEach(function(match) {
+      var gClass = match.s === 'round32' || match.s === 'round16' ? ' knockout' : '';
+      gClass = match.s === 'sf_final' ? ' final' : gClass;
+      var noteHtml = match.n ? ' <span style="font-size:0.6rem;color:var(--wc-gold-light);">#' + match.n + '</span>' : '';
+
+      html += '<div class="daily-match-card">';
+      html += '<span class="dm-time">' + match.t + '</span>';
+      html += '<span class="dm-teams">' + match.h + ' <span style="color:var(--text-muted);font-weight:400;">vs</span> ' + match.a + noteHtml + '</span>';
+      html += '<span class="dm-group' + gClass + '">' + match.g + '</span>';
+      html += '<span class="dm-venue">📍 ' + match.v + '</span>';
+      html += '</div>';
+    });
+  }
+
+  container.innerHTML = html;
+
+  // Scroll selected date tab into view
+  var activeTab = document.querySelector('.date-tab.active');
+  if (activeTab) {
+    activeTab.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }
+}
+
+// Initialize daily schedule
+switchStage('group');
 
 // ============ SCHEDULE TOGGLE ============
 function toggleSchedule() {
