@@ -97,6 +97,11 @@ body::before {
   padding: 36px 20px 60px;
   position: relative;
   z-index: 1;
+  overflow-x: hidden;
+}
+
+@media (max-width: 500px) {
+  .container { padding: 20px 12px 40px; }
 }
 
 /* ===== Header ===== */
@@ -254,6 +259,14 @@ body::before {
   .header h1 { font-size: 1.6rem; }
 }
 
+@media (max-width: 500px) {
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 1.35rem; }
+  .header .subtitle { font-size: 0.72rem; }
+  .header-icon { font-size: 32px; }
+  .header-badge { font-size: 0.65rem; padding: 4px 12px; }
+}
+
 /* ===== Card ===== */
 .card {
   background: var(--bg-card);
@@ -263,6 +276,11 @@ body::before {
   position: relative;
   overflow: visible;
   transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+@media (max-width: 500px) {
+  .card { padding: 18px 14px; }
+  .match-card { padding: 14px 14px; }
 }
 
 .card-accent-top {
@@ -1106,6 +1124,8 @@ body::before {
 /* ===== Module Section Divider ===== */
 .module-section {
   margin-bottom: 32px;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .module-label {
@@ -1154,6 +1174,10 @@ body::before {
   padding: 24px;
 }
 
+@media (max-width: 500px) {
+  .schedule-card { padding: 16px 12px; }
+}
+
 .schedule-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -1171,8 +1195,13 @@ body::before {
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: var(--radius-sm);
   padding: 14px;
-  position: sticky;
-  top: 20px;
+}
+
+@media (min-width: 701px) {
+  .cal-widget {
+    position: sticky;
+    top: 20px;
+  }
 }
 
 .cal-month-header {
@@ -1448,7 +1477,21 @@ body::before {
   padding: 3px;
   margin-bottom: 14px;
   width: fit-content;
+  max-width: 100%;
   flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stage-tabs::-webkit-scrollbar { display: none; }
+
+@media (max-width: 500px) {
+  .stage-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    border-radius: 14px;
+  }
 }
 
 .stage-tab {
