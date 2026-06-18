@@ -1103,6 +1103,250 @@ body::before {
   animation: subtlePulse 2s ease-in-out infinite;
 }
 
+/* ===== Schedule Section ===== */
+.schedule-card {
+  scroll-margin-top: 20px;
+}
+
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.schedule-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-xs);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-toggle:hover {
+  border-color: var(--wc-gold);
+  color: var(--wc-gold-light);
+}
+
+.schedule-toggle .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 0.7rem;
+}
+
+.schedule-toggle.open .arrow {
+  transform: rotate(180deg);
+}
+
+.schedule-body {
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+}
+
+.schedule-body.open {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.schedule-inner {
+  padding-top: 20px;
+}
+
+/* Overview stats */
+.schedule-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .schedule-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+.schedule-stat {
+  text-align: center;
+  padding: 14px 8px;
+  background: rgba(42,57,141,0.2);
+  border: 1px solid rgba(42,57,141,0.3);
+  border-radius: var(--radius-sm);
+}
+
+.schedule-stat .stat-num {
+  font-family: 'Marcellus', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--wc-gold-light);
+  display: block;
+}
+
+.schedule-stat .stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--wc-red), var(--wc-blue), var(--wc-green));
+  border-radius: 1px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 18px;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -21px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 2px solid var(--wc-red);
+  z-index: 1;
+}
+
+.timeline-item.is-knockout::before { border-color: var(--wc-gold); }
+.timeline-item.is-final::before { border-color: var(--wc-gold-light); background: var(--wc-gold); }
+
+.tl-phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.tl-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.tl-badge.group { background: rgba(230,29,37,0.15); color: var(--wc-red-light); border: 1px solid rgba(230,29,37,0.25); }
+.tl-badge.knockout { background: rgba(212,168,67,0.12); color: var(--wc-gold-light); border: 1px solid rgba(212,168,67,0.25); }
+.tl-badge.final { background: rgba(212,168,67,0.2); color: var(--wc-gold-light); border: 1px solid rgba(212,168,67,0.4); }
+
+.tl-name {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.tl-date {
+  font-size: 0.78rem;
+  color: var(--wc-gold-light);
+  white-space: nowrap;
+}
+
+.tl-note {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+.tl-venue {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Highlight match grid */
+.highlight-matches {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.hl-title {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.hl-match {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-xs);
+  transition: border-color 0.2s;
+}
+
+.hl-match:hover {
+  border-color: rgba(230,29,37,0.3);
+}
+
+.hl-date-tag {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--wc-red-light);
+  white-space: nowrap;
+  min-width: 52px;
+}
+
+.hl-teams {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  flex: 1;
+  font-weight: 500;
+}
+
+.hl-group {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  padding: 1px 7px;
+  background: rgba(42,57,141,0.3);
+  border-radius: 3px;
+  font-weight: 500;
+}
+
 </style>
 </head>
 <body>
@@ -1207,6 +1451,160 @@ body::before {
             <div id="barChart"></div>
           </div>
           <div class="analysis-note" id="analysisNote"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2026 World Cup Schedule ===== -->
+  <div class="card schedule-card" id="scheduleCard">
+    <div class="card-accent-top"></div>
+    <div class="card-body">
+      <div class="schedule-header">
+        <div class="card-title"><span class="dot"></span>2026 世界杯赛事时间表</div>
+        <button class="schedule-toggle" id="scheduleToggle" onclick="toggleSchedule()">
+          展开赛程 <span class="arrow">▾</span>
+        </button>
+      </div>
+
+      <div class="schedule-body" id="scheduleBody">
+        <div class="schedule-inner">
+
+          <div class="schedule-stats">
+            <div class="schedule-stat">
+              <span class="stat-num">48</span>
+              <span class="stat-label">参赛球队</span>
+            </div>
+            <div class="schedule-stat">
+              <span class="stat-num">104</span>
+              <span class="stat-label">总场次</span>
+            </div>
+            <div class="schedule-stat">
+              <span class="stat-num">12</span>
+              <span class="stat-label">小组</span>
+            </div>
+            <div class="schedule-stat">
+              <span class="stat-num">16</span>
+              <span class="stat-label">举办城市</span>
+            </div>
+          </div>
+
+          <div class="timeline">
+
+            <div class="timeline-item">
+              <div class="tl-phase">
+                <span class="tl-badge group">小组赛</span>
+                <span class="tl-name">小组赛 A-L 组</span>
+                <span class="tl-date">6月12日 - 6月28日</span>
+              </div>
+              <div class="tl-note">12个小组 · 每组4队 · 前2名 + 8个最佳第三名晋级32强 · 每天2~4场</div>
+            </div>
+
+            <div class="timeline-item is-knockout">
+              <div class="tl-phase">
+                <span class="tl-badge knockout">1/16 决赛</span>
+                <span class="tl-name">Round of 32</span>
+                <span class="tl-date">6月29日 - 7月4日</span>
+              </div>
+              <div class="tl-note">16场比赛 · 小组第一 vs 小组第三，可能出现强强提前对话</div>
+            </div>
+
+            <div class="timeline-item is-knockout">
+              <div class="tl-phase">
+                <span class="tl-badge knockout">1/8 决赛</span>
+                <span class="tl-name">Round of 16</span>
+                <span class="tl-date">7月5日 - 7月8日</span>
+              </div>
+              <div class="tl-note">8场比赛 · 每天2场</div>
+            </div>
+
+            <div class="timeline-item is-knockout">
+              <div class="tl-phase">
+                <span class="tl-badge knockout">1/4 决赛</span>
+                <span class="tl-name">Quarter-finals</span>
+                <span class="tl-date">7月10日 - 7月12日</span>
+              </div>
+              <div class="tl-note">4场比赛 · 八强之争</div>
+            </div>
+
+            <div class="timeline-item is-knockout">
+              <div class="tl-phase">
+                <span class="tl-badge knockout">半决赛</span>
+                <span class="tl-name">Semi-finals</span>
+                <span class="tl-date">7月15日 - 7月16日</span>
+              </div>
+              <div class="tl-note">2场比赛 · 胜者晋级决赛</div>
+            </div>
+
+            <div class="timeline-item is-knockout">
+              <div class="tl-phase">
+                <span class="tl-badge knockout">季军赛</span>
+                <span class="tl-name">3rd Place Match</span>
+                <span class="tl-date">7月19日</span>
+              </div>
+              <div class="tl-note">📍 Hard Rock Stadium · 迈阿密</div>
+            </div>
+
+            <div class="timeline-item is-final">
+              <div class="tl-phase">
+                <span class="tl-badge final">🏆 决赛</span>
+                <span class="tl-name">FINAL</span>
+                <span class="tl-date">7月20日 03:00 BJT</span>
+              </div>
+              <div class="tl-note">📍 MetLife Stadium · 纽约/新泽西 · 104场中的终极之战</div>
+            </div>
+          </div>
+
+          <div class="highlight-matches">
+            <div class="hl-title">🔥 小组赛必看场次（北京时间）</div>
+            <div class="hl-grid">
+              <div class="hl-match">
+                <span class="hl-date-tag">6/14 06:00</span>
+                <span class="hl-teams">巴西 vs 摩洛哥</span>
+                <span class="hl-group">C组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/16 03:00</span>
+                <span class="hl-teams">比利时 vs 埃及</span>
+                <span class="hl-group">G组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/17 03:00</span>
+                <span class="hl-teams">法国 vs 塞内加尔</span>
+                <span class="hl-group">I组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/18 04:00</span>
+                <span class="hl-teams">英格兰 vs 克罗地亚</span>
+                <span class="hl-group">L组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/19 09:00</span>
+                <span class="hl-teams">墨西哥 vs 韩国</span>
+                <span class="hl-group">A组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/21 04:00</span>
+                <span class="hl-teams">德国 vs 科特迪瓦</span>
+                <span class="hl-group">E组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/23 01:00</span>
+                <span class="hl-teams">阿根廷 vs 奥地利</span>
+                <span class="hl-group">J组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/27 08:00</span>
+                <span class="hl-teams">西班牙 vs 乌拉圭</span>
+                <span class="hl-group">H组</span>
+              </div>
+              <div class="hl-match">
+                <span class="hl-date-tag">6/28 07:30</span>
+                <span class="hl-teams">葡萄牙 vs 哥伦比亚</span>
+                <span class="hl-group">K组</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1792,6 +2190,22 @@ $calcBtn.addEventListener('click', () => $calcBtn.classList.remove('pulse'));
 
 // ============ INIT ============
 renderScoreRows();
+
+// ============ SCHEDULE TOGGLE ============
+function toggleSchedule() {
+  var body = document.getElementById('scheduleBody');
+  var btn = document.getElementById('scheduleToggle');
+  var isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    btn.classList.remove('open');
+    btn.innerHTML = '展开赛程 <span class="arrow">▾</span>';
+  } else {
+    body.classList.add('open');
+    btn.classList.add('open');
+    btn.innerHTML = '收起赛程 <span class="arrow">▾</span>';
+  }
+}
 </script>
 </body>
 </html>
