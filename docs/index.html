@@ -1121,6 +1121,101 @@ body::before {
   animation: subtlePulse 2s ease-in-out infinite;
 }
 
+/* ===== Mobile overflow fixes for betting module ===== */
+@media (max-width: 500px) {
+  /* Match card */
+  .match-card {
+    padding: 14px 10px;
+    gap: 10px;
+  }
+  .match-team { font-size: 1rem; min-width: 60px; }
+  .match-vs .vs-text { font-size: 1.2rem; }
+
+  /* Score rows — allow wrapping */
+  .score-row {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 10px;
+  }
+  .score-row .row-index { width: 18px; font-size: 0.68rem; }
+  .score-badge { padding: 6px 12px; font-size: 0.95rem; min-width: 58px; }
+
+  /* Odds input */
+  .odds-label-text { font-size: 0.68rem; }
+  .odds-input { width: 60px; padding: 7px 4px; font-size: 0.82rem; }
+
+  /* Quick odds — wrap */
+  .quick-odds {
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .quick-odds .chip {
+    padding: 3px 6px;
+    font-size: 0.63rem;
+  }
+
+  /* Remove button */
+  .remove-btn {
+    margin-left: 0;
+    position: absolute;
+    top: 6px; right: 4px;
+  }
+
+  /* Amount presets — wrap */
+  .amount-presets {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .amount-presets .chip {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  /* Amount input */
+  .amount-input {
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  /* Button row */
+  .btn-calculate {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+  }
+  .btn-calculate .shortcut { display: none; }
+  .btn-outline { padding: 12px 14px; font-size: 0.78rem; }
+
+  /* Weight section */
+  .weight-item label { width: 38px; font-size: 0.7rem; }
+  .weight-item .weight-val { width: 28px; font-size: 0.7rem; }
+
+  /* Allocation table — horizontal scroll */
+  .alloc-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0;
+    margin: 0 -14px;
+    padding: 0 14px;
+    width: calc(100% + 28px);
+  }
+  .alloc-table { min-width: 460px; }
+  .alloc-table th { padding: 7px 8px; font-size: 0.64rem; }
+  .alloc-table td { padding: 9px 8px; font-size: 0.75rem; }
+
+  /* Summary strip */
+  .summary-strip { gap: 6px; }
+  .stat-card { padding: 12px 8px; }
+  .stat-value { font-size: 1.2rem; }
+
+  /* Bar chart */
+  .bar-score-label { width: 36px; font-size: 0.72rem; }
+  .bar-val { width: 60px; font-size: 0.68rem; }
+  .bar-pct-label { width: 34px; font-size: 0.65rem; }
+
+  /* Analysis note */
+  .analysis-note { padding: 12px 12px; font-size: 0.74rem; }
+}
+
 /* ===== Module Section Divider ===== */
 .module-section {
   margin-bottom: 32px;
