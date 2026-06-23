@@ -377,7 +377,9 @@ body::before {
 
 .score-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   padding: 10px 14px;
   background: rgba(255,255,255,0.012);
@@ -392,18 +394,7 @@ body::before {
   border-color: rgba(255,255,255,0.05);
 }
 
-.score-row-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.score-row-bottom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 28px;
-}
+/* score-row-top / score-row-bottom removed — single-row layout */
 
 .score-row .row-index {
   font-family: 'JetBrains Mono', monospace;
@@ -1184,8 +1175,7 @@ body::before {
     padding: 10px 10px;
     gap: 6px;
   }
-  .score-row-top { gap: 6px; }
-  .score-row-bottom { padding-left: 24px; gap: 4px; }
+  .score-row { gap: 5px; padding: 8px 10px; }
   .score-row .row-index { width: 16px; font-size: 0.65rem; }
   .score-badge { padding: 5px 10px; font-size: 0.9rem; min-width: 52px; }
   .score-badge .caret { font-size: 0.52rem; }
@@ -2389,7 +2379,6 @@ function renderScoreRows() {
     const row = document.createElement('div');
     row.className = 'score-row';
     row.innerHTML = `
-      <div class="score-row-top">
         <span class="row-index">${i + 1}</span>
         <div class="score-badge" data-index="${i}">
           <span class="score-text">${score}</span>
@@ -2401,11 +2390,6 @@ function renderScoreRows() {
           <option value="tertiary" ${role === 'tertiary' ? 'selected' : ''}>次次要</option>
           <option value="hedge" ${role === 'hedge' ? 'selected' : ''}>保本</option>
         </select>
-        ${selectedScores.length > MIN_SCORES
-          ? `<button class="remove-btn" data-index="${i}" title="移除">×</button>`
-          : '<span style="width:26px;flex-shrink:0"></span>'}
-      </div>
-      <div class="score-row-bottom">
         <span class="odds-prefix">赔率</span>
         <input type="number" class="odds-input" value="${odds}" step="0.1" min="1.01" data-index="${i}" placeholder="赔率">
         <div class="quick-odds">
@@ -2414,7 +2398,9 @@ function renderScoreRows() {
           <span class="chip" data-odds="12">12</span>
           <span class="chip" data-odds="18">18</span>
         </div>
-      </div>
+        ${selectedScores.length > MIN_SCORES
+          ? `<button class="remove-btn" data-index="${i}" title="移除">×</button>`
+          : '<span style="width:26px;flex-shrink:0"></span>'}
     `;
     $scoreRows.appendChild(row);
   });
