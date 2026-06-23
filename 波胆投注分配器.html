@@ -157,72 +157,26 @@ body::before {
   margin-top: 4px;
 }
 
-/* ===== Match Card ===== */
-.match-card {
+/* ===== Betting Layout (sidebar + main) ===== */
+.betting-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ===== Match Selector Sidebar ===== */
+.match-selector {
+  width: 130px;
+  flex-shrink: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 14px 24px;
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.match-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
-  opacity: 0.4;
-}
-
-.match-team {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  min-width: 80px;
-}
-
-.match-team.home { text-align: right; }
-.match-team.away { text-align: left; }
-
-.match-vs {
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.match-vs .vs-text {
-  font-family: 'Marcellus', serif;
-  font-size: 1.5rem;
-  color: var(--accent);
-  letter-spacing: 0.06em;
-  line-height: 1;
-}
-
-.match-vs .vs-divider {
-  width: 24px;
-  height: 1px;
-  background: var(--accent-dim);
-  opacity: 0.5;
-}
-
-/* ===== Match Selector ===== */
-.match-selector {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
+  gap: 10px;
+  position: sticky;
+  top: 20px;
 }
 .match-selector::after {
   content: '';
@@ -231,94 +185,162 @@ body::before {
   background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
   opacity: 0.4;
 }
-.ms-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.ms-header .ms-label {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  font-weight: 500;
-}
-.ms-header .ms-date {
-  font-size: 0.7rem;
-  color: var(--accent-light);
-  font-family: 'JetBrains Mono', monospace;
-}
-.ms-tabs {
-  display: flex;
-  gap: 0;
-  border-radius: var(--radius-xs);
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-}
-.ms-tab {
-  padding: 5px 14px;
-  font-size: 0.72rem;
+
+/* Vertical tabs */
+.ms-tab-v {
+  width: 100%;
+  padding: 8px 0;
+  font-size: 0.75rem;
   font-family: 'Noto Sans SC', sans-serif;
   color: var(--text-muted);
   background: transparent;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all 0.2s;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-align: center;
 }
-.ms-tab + .ms-tab { border-left: 1px solid rgba(255,255,255,0.08); }
-.ms-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
-.ms-tab.active {
+.ms-tab-v:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+.ms-tab-v.active {
+  color: #fff;
+  background: rgba(230,29,37,0.15);
+  border-color: rgba(230,29,37,0.3);
+}
+
+/* Selected match display */
+.ms-selected {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 4px;
+  border-radius: var(--radius-xs);
+  background: rgba(255,255,255,0.015);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  text-align: center;
+}
+.ms-selected:hover {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.06);
+}
+.ms-sel-home, .ms-sel-away {
+  font-size: 0.78rem;
+  font-weight: 500;
   color: var(--text-primary);
-  background: rgba(230,29,37,0.12);
+  line-height: 1.2;
 }
-.ms-list {
-  max-height: 200px;
+.ms-sel-vs {
+  font-family: 'Marcellus', serif;
+  font-size: 0.62rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.ms-sel-meta {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.ms-selected-empty {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ===== Match Popup ===== */
+.ms-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(6,10,24,0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.ms-popup-overlay.open { display: flex; }
+
+.ms-popup {
+  width: 90%;
+  max-width: 400px;
+  max-height: 70vh;
+  background: var(--bg-card);
+  border: 1px solid rgba(230,29,37,0.2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 60px rgba(230,29,37,0.08);
+}
+.ms-popup-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.ms-popup-close {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.ms-popup-close:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+.ms-popup-list {
   overflow-y: auto;
+  max-height: 50vh;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 8px;
 }
-.ms-match-item {
+.ms-popup-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 10px 12px;
   border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   border: 1px solid transparent;
 }
-.ms-match-item:hover {
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,0.06);
+.ms-popup-item:hover {
+  background: rgba(230,29,37,0.06);
+  border-color: rgba(230,29,37,0.2);
 }
-.ms-match-item.selected {
-  background: rgba(230,29,37,0.08);
-  border-color: rgba(230,29,37,0.25);
-}
-.ms-match-item .ms-time {
+.ms-popup-item .ms-time {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   color: var(--text-muted);
   min-width: 42px;
   flex-shrink: 0;
 }
-.ms-match-item .ms-teams {
+.ms-popup-item .ms-teams {
   font-size: 0.85rem;
   color: var(--text-primary);
   font-weight: 500;
   flex: 1;
 }
-.ms-match-item .ms-teams .ms-vs {
+.ms-popup-item .ms-teams .ms-vs {
   color: var(--text-muted);
   font-weight: 400;
   margin: 0 4px;
 }
-.ms-match-item .ms-group {
+.ms-popup-item .ms-group {
   font-size: 0.65rem;
   color: var(--wc-gold-dim);
   padding: 2px 8px;
@@ -326,13 +348,9 @@ body::before {
   background: rgba(212,168,67,0.08);
   flex-shrink: 0;
 }
-.ms-match-item.selected .ms-group {
-  color: var(--wc-gold-light);
-  background: rgba(212,168,67,0.15);
-}
-.ms-empty {
+.ms-popup-empty {
   text-align: center;
-  padding: 20px;
+  padding: 24px;
   font-size: 0.78rem;
   color: var(--text-muted);
 }
@@ -415,7 +433,6 @@ body::before {
 
 @media (max-width: 500px) {
   .card { padding: 18px 14px; }
-  .match-card { padding: 14px 14px; }
 }
 
 .card-accent-top {
@@ -1253,22 +1270,33 @@ body::before {
 
 /* ===== Mobile overflow fixes for betting module ===== */
 @media (max-width: 500px) {
-  /* Match card */
-  .match-card {
-    padding: 14px 10px;
+  /* Betting layout — stack on mobile */
+  .betting-layout { flex-direction: column; gap: 14px; }
+  .match-selector {
+    width: 100%;
+    flex-direction: row;
     gap: 10px;
+    padding: 10px;
+    position: static;
+    flex-wrap: wrap;
   }
-  .match-team { font-size: 1rem; min-width: 60px; }
-  .match-vs .vs-text { font-size: 1.2rem; }
-
-  /* Match selector */
-  .match-selector { padding: 12px; }
-  .ms-tab { padding: 4px 12px; font-size: 0.68rem; }
-  .ms-match-item { padding: 7px 10px; gap: 6px; }
-  .ms-match-item .ms-time { font-size: 0.65rem; min-width: 36px; }
-  .ms-match-item .ms-teams { font-size: 0.76rem; }
-  .ms-match-item .ms-group { font-size: 0.6rem; padding: 2px 6px; }
-  .ms-header .ms-label { font-size: 0.7rem; }
+  .ms-tab-v {
+    flex: 1;
+    padding: 7px 0;
+    font-size: 0.7rem;
+  }
+  .ms-selected {
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 6px;
+    padding: 6px 10px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ms-sel-home, .ms-sel-away { font-size: 0.75rem; }
+  .ms-sel-vs { font-size: 0.6rem; }
+  .ms-sel-meta { margin-top: 0; font-size: 0.58rem; }
 
   /* Score rows — compact */
   .score-row {
@@ -2119,28 +2147,30 @@ body::before {
       <span class="mod-tag">Role-Based Allocation</span>
     </div>
 
-  <!-- Match Selector -->
-  <div class="match-selector" id="matchSelector">
-    <div class="ms-header">
-      <span class="ms-label">赛事选择</span>
-      <div class="ms-tabs">
-        <button class="ms-tab active" id="tabToday" onclick="selectMatchDay('today')">今天</button>
-        <button class="ms-tab" id="tabTomorrow" onclick="selectMatchDay('tomorrow')">明天</button>
+  <!-- Betting Layout: sidebar + main -->
+  <div class="betting-layout">
+    <!-- Match Selector Sidebar -->
+    <div class="match-selector" id="matchSelector">
+      <button class="ms-tab-v active" id="tabToday" onclick="selectMatchDay('today')">今天</button>
+      <button class="ms-tab-v" id="tabTomorrow" onclick="selectMatchDay('tomorrow')">明天</button>
+      <div class="ms-selected" id="msSelected" onclick="openMatchPopup()" title="点击切换赛事">
+        <div class="ms-sel-home" id="msSelHome">西班牙</div>
+        <div class="ms-sel-vs">VS</div>
+        <div class="ms-sel-away" id="msSelAway">葡萄牙</div>
+        <div class="ms-sel-meta" id="msSelMeta">6/23 · A组</div>
       </div>
-      <span class="ms-date" id="msDateLabel">6/23</span>
     </div>
-    <div class="ms-list" id="msMatchList"></div>
-  </div>
 
-  <!-- Match Card (display only) -->
-  <div class="match-card" id="matchCard">
-    <span class="match-team home" id="homeName">西班牙</span>
-    <div class="match-vs">
-      <span class="vs-text">VS</span>
-      <span class="vs-divider"></span>
+    <!-- Match Popup Overlay -->
+    <div class="ms-popup-overlay" id="msPopupOverlay" onclick="closeMatchPopup()">
+      <div class="ms-popup" onclick="event.stopPropagation()">
+        <div class="ms-popup-hdr">
+          <span id="msPopupTitle">6/23 赛事</span>
+          <button class="ms-popup-close" onclick="closeMatchPopup()">×</button>
+        </div>
+        <div class="ms-popup-list" id="msPopupList"></div>
+      </div>
     </div>
-    <span class="match-team away" id="awayName">葡萄牙</span>
-  </div>
 
   <!-- Main Grid -->
   <div class="main-grid">
@@ -2299,7 +2329,7 @@ const $pickerGrid = $('pickerGrid');
 const $scoreCountHint = $('scoreCountHint');
 const $amountInput = $('totalAmount');
 
-// ============ MATCH SELECTOR ============
+// ============ MATCH SELECTOR (Sidebar + Popup) ============
 var selectedDay = 'today';
 var selectedMatchIdx = -1;
 
@@ -2313,33 +2343,42 @@ function selectMatchDay(day) {
   selectedDay = day;
   $('tabToday').classList.toggle('active', day === 'today');
   $('tabTomorrow').classList.toggle('active', day === 'tomorrow');
+  openMatchPopup(day);
+}
+
+function openMatchPopup(day) {
+  day = day || selectedDay;
+  selectedDay = day;
+  $('tabToday').classList.toggle('active', day === 'today');
+  $('tabTomorrow').classList.toggle('active', day === 'tomorrow');
+
   var dateStr = getDateStr(day);
   var m = parseInt(dateStr.substring(0,2));
   var d = parseInt(dateStr.substring(2));
-  $('msDateLabel').textContent = m + '/' + d;
-  populateMatchList();
-}
+  $('msPopupTitle').textContent = m + '/' + d + ' 赛事';
 
-function populateMatchList() {
-  var dateStr = getDateStr(selectedDay);
   var matches = matchesByDate[dateStr] || [];
-  var container = $('msMatchList');
+  var list = $('msPopupList');
 
   if (matches.length === 0) {
-    container.innerHTML = '<div class="ms-empty">当日暂无赛事</div>';
-    return;
+    list.innerHTML = '<div class="ms-popup-empty">当日暂无赛事</div>';
+  } else {
+    var html = '';
+    matches.forEach(function(match, idx) {
+      html += '<div class="ms-popup-item" onclick="selectMatch(\'' + day + '\',' + idx + ')">';
+      html += '<span class="ms-time">' + match.t + '</span>';
+      html += '<span class="ms-teams">' + match.h + '<span class="ms-vs">vs</span>' + match.a + '</span>';
+      html += '<span class="ms-group">' + match.g + '</span>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
   }
 
-  var html = '';
-  matches.forEach(function(match, idx) {
-    var sel = (selectedMatchIdx === idx) ? ' selected' : '';
-    html += '<div class="ms-match-item' + sel + '" onclick="selectMatch(\'' + selectedDay + '\',' + idx + ')" data-idx="' + idx + '">';
-    html += '<span class="ms-time">' + match.t + '</span>';
-    html += '<span class="ms-teams">' + match.h + '<span class="ms-vs">vs</span>' + match.a + '</span>';
-    html += '<span class="ms-group">' + match.g + '</span>';
-    html += '</div>';
-  });
-  container.innerHTML = html;
+  $('msPopupOverlay').classList.add('open');
+}
+
+function closeMatchPopup() {
+  $('msPopupOverlay').classList.remove('open');
 }
 
 function selectMatch(day, idx) {
@@ -2350,23 +2389,27 @@ function selectMatch(day, idx) {
   var match = matches[idx];
   if (!match) return;
 
-  // Update match card display
-  $('homeName').textContent = match.h;
-  $('awayName').textContent = match.a;
+  // Update sidebar display
+  $('msSelHome').textContent = match.h;
+  $('msSelAway').textContent = match.a;
+  var m = parseInt(dateStr.substring(0,2));
+  var d = parseInt(dateStr.substring(2));
+  $('msSelMeta').textContent = m + '/' + d + ' · ' + match.g;
 
-  // Update selection highlight
-  var items = $('msMatchList').querySelectorAll('.ms-match-item');
-  items.forEach(function(item) {
-    item.classList.remove('selected');
-    if (parseInt(item.dataset.idx) === idx) {
-      item.classList.add('selected');
-    }
-  });
+  // Close popup
+  closeMatchPopup();
 }
 
-// Initialize selector — called after matchesByDate is built
+// Init — called after matchesByDate is built
 function initMatchSelector() {
-  selectMatchDay('today');
+  // Just set active tab; don't auto-open popup
+  $('tabToday').classList.add('active');
+  // Set a default match (first match of today) if available
+  var todayStr = getDateStr('today');
+  var todayMatches = matchesByDate[todayStr] || [];
+  if (todayMatches.length > 0) {
+    selectMatch('today', 0);
+  }
 }
 
 // ============ SCORE PICKER ============
@@ -2906,8 +2949,9 @@ $resetBtn.addEventListener('click', () => {
   scoreRoles = [...DEFAULT_ROLES];
   renderScoreRows();
   $amountInput.value = '10000';
-  $('homeName').textContent = '西班牙';
-  $('awayName').textContent = '葡萄牙';
+  $('msSelHome').textContent = '西班牙';
+  $('msSelAway').textContent = '葡萄牙';
+  $('msSelMeta').textContent = '6/23 · A组';
   $resultsPanel.classList.remove('visible');
   $emptyState.style.display = '';
   const connector = document.getElementById('resultsConnector');
