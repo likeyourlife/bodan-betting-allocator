@@ -480,6 +480,68 @@ body::before {
   color: var(--wc-red-light);
 }
 
+/* ===== Role Selector ===== */
+.role-select {
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 22px;
+}
+
+.role-select:hover { border-color: rgba(255,255,255,0.18); }
+.role-select:focus { border-color: var(--accent-dim); }
+
+.role-select.r-primary { color: var(--accent-light); border-color: rgba(230,29,37,0.25); }
+.role-select.r-secondary { color: var(--wc-blue-light, #6b8cff); border-color: rgba(42,57,141,0.3); }
+.role-select.r-tertiary { color: var(--text-muted); border-color: rgba(255,255,255,0.08); }
+.role-select.r-hedge { color: var(--accent-green-light); border-color: rgba(60,172,59,0.25); }
+
+/* ===== Role Legend ===== */
+.role-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-xs);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.role-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.role-dot.r-primary { background: var(--accent); box-shadow: 0 0 6px rgba(230,29,37,0.4); }
+.role-dot.r-secondary { background: var(--wc-blue, #2A398D); box-shadow: 0 0 6px rgba(42,57,141,0.3); }
+.role-dot.r-tertiary { background: var(--text-muted); }
+.role-dot.r-hedge { background: var(--accent-green, #3CAC3B); box-shadow: 0 0 6px rgba(60,172,59,0.3); }
+
+@media (max-width: 500px) {
+  .role-select { font-size: 0.62rem; padding: 4px 6px; padding-right: 18px; }
+  .role-legend { gap: 8px; flex-wrap: wrap; }
+  .legend-item { font-size: 0.63rem; }
+}
+
 /* ===== Score Picker Popover ===== */
 .score-picker-overlay {
   position: fixed;
@@ -966,6 +1028,21 @@ body::before {
 .alloc-table .pf.pos { color: var(--accent-green); }
 .alloc-table .pf.neg { color: var(--wc-red-light); }
 .alloc-table .pct { color: var(--text-secondary); font-size: 0.78rem; }
+
+/* Role tags in table */
+.role-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.role-tag.tag-primary { background: rgba(230,29,37,0.15); color: var(--accent-light); }
+.role-tag.tag-secondary { background: rgba(42,57,141,0.15); color: var(--wc-blue-light, #6b8cff); }
+.role-tag.tag-tertiary { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.role-tag.tag-hedge { background: rgba(60,172,59,0.12); color: var(--accent-green-light); }
 
 .alloc-table .highlight-row {
   background: rgba(230,29,37,0.04) !important;
@@ -1986,7 +2063,7 @@ body::before {
     <div class="module-label">
       <span class="mod-num">2</span>
       <span class="mod-title">Wagering Computation</span>
-      <span class="mod-tag">Dutching Algorithm</span>
+      <span class="mod-tag">Role-Based Allocation</span>
     </div>
 
   <!-- Match Card -->
@@ -2033,13 +2110,11 @@ body::before {
           </div>
         </div>
 
-        <div class="weight-section">
-          <label class="weight-toggle">
-            <input type="checkbox" id="weightMode">
-            <span class="toggle-track"></span>
-            权重调节模式
-          </label>
-          <div class="weight-sliders" id="weightSliders"></div>
+        <div class="role-legend" id="roleLegend">
+          <span class="legend-item"><span class="role-dot r-primary"></span>主要</span>
+          <span class="legend-item"><span class="role-dot r-secondary"></span>次要</span>
+          <span class="legend-item"><span class="role-dot r-tertiary"></span>次次要</span>
+          <span class="legend-item"><span class="role-dot r-hedge"></span>保本</span>
         </div>
 
         <div class="btn-row">
@@ -2066,6 +2141,7 @@ body::before {
             <table class="alloc-table">
               <thead>
                 <tr>
+                  <th>角色</th>
                   <th>比分</th>
                   <th>赔率</th>
                   <th>投入金额</th>
@@ -2123,6 +2199,10 @@ const DEFAULT_ODDS = { '1:0': 7.5, '1:1': 12.5, '2:1': 9.5, '3:1': 18, '2:0': 22
 let scoreCount = 3;
 let selectedScores = [...DEFAULT_SELECTED];
 let manualOdds = { ...DEFAULT_ODDS };
+const ROLE_WEIGHTS = { primary: 5, secondary: 3, tertiary: 1.5, hedge: 0 };
+const ROLE_LABELS = { primary: '主要', secondary: '次要', tertiary: '次次要', hedge: '保本' };
+const DEFAULT_ROLES = ['primary', 'secondary', 'tertiary'];
+let scoreRoles = [...DEFAULT_ROLES];
 const MAX_SCORES = 5;
 const MIN_SCORES = 3;
 
@@ -2135,8 +2215,6 @@ const $scoreRows = $('scoreRows');
 const $addBtn = $('addScoreBtn');
 const $calcBtn = $('calcBtn');
 const $resetBtn = $('resetBtn');
-const $weightMode = $('weightMode');
-const $weightSliders = $('weightSliders');
 const $resultsPanel = $('resultsPanel');
 const $emptyState = $('emptyState');
 const $summaryStrip = $('summaryStrip');
@@ -2328,10 +2406,14 @@ function renderScoreRows() {
     if (candidates.length === 0) break;
     selectedScores.push(candidates[0]);
   }
+  // Ensure roles array matches scores length
+  while (scoreRoles.length < selectedScores.length) scoreRoles.push('hedge');
+  scoreRoles.length = selectedScores.length;
 
   $scoreRows.innerHTML = '';
   selectedScores.forEach((score, i) => {
     const odds = manualOdds[score] ?? getDefaultOddsForScore(score);
+    const role = scoreRoles[i] || 'primary';
     const row = document.createElement('div');
     row.className = 'score-row';
     row.innerHTML = `
@@ -2350,6 +2432,12 @@ function renderScoreRows() {
           <span class="chip" data-odds="15">15</span>
         </div>
       </div>
+      <select class="role-select r-${role}" data-index="${i}">
+        <option value="primary" ${role === 'primary' ? 'selected' : ''}>主要</option>
+        <option value="secondary" ${role === 'secondary' ? 'selected' : ''}>次要</option>
+        <option value="tertiary" ${role === 'tertiary' ? 'selected' : ''}>次次要</option>
+        <option value="hedge" ${role === 'hedge' ? 'selected' : ''}>保本</option>
+      </select>
       ${selectedScores.length > MIN_SCORES
         ? `<button class="remove-btn" data-index="${i}" title="移除">×</button>`
         : '<span style="width:26px;flex-shrink:0;margin-left:auto"></span>'}
@@ -2392,6 +2480,16 @@ function renderScoreRows() {
     });
   });
 
+  // Role selector change
+  document.querySelectorAll('.role-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const idx = parseInt(sel.dataset.index);
+      scoreRoles[idx] = sel.value;
+      sel.className = 'role-select r-' + sel.value;
+      $calcBtn.classList.add('pulse');
+    });
+  });
+
   // Remove button
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2399,24 +2497,22 @@ function renderScoreRows() {
       const score = selectedScores[idx];
       if (selectedScores.length <= MIN_SCORES) return;
       selectedScores.splice(idx, 1);
+      scoreRoles.splice(idx, 1);
       delete manualOdds[score];
       renderScoreRows();
-      if ($weightMode.checked) renderWeightSlidersUI();
     });
   });
-
-  if ($weightMode.checked) renderWeightSlidersUI();
 }
 
 // ============ ADD SCORE ============
 $addBtn.addEventListener('click', () => {
   if (selectedScores.length >= MAX_SCORES) return;
-  // Pick first unused preset score
   const used = new Set(selectedScores);
   const allScores = PRESET_SCORES.flatMap(g => g.scores);
   const next = allScores.find(s => !used.has(s)) || '2:2';
   selectedScores.push(next);
   if (!manualOdds[next]) manualOdds[next] = getDefaultOddsForScore(next);
+  scoreRoles.push('hedge'); // default new scores as hedge
   renderScoreRows();
 });
 
@@ -2427,35 +2523,6 @@ document.querySelectorAll('.amount-presets .chip').forEach(chip => {
     $amountInput.focus();
   });
 });
-
-// ============ WEIGHT MODE ============
-$weightMode.addEventListener('change', () => {
-  if ($weightMode.checked) {
-    $weightSliders.classList.add('visible');
-    renderWeightSlidersUI();
-  } else {
-    $weightSliders.classList.remove('visible');
-  }
-});
-
-function renderWeightSlidersUI() {
-  $weightSliders.innerHTML = '';
-  selectedScores.forEach((score, i) => {
-    const div = document.createElement('div');
-    div.className = 'weight-item';
-    div.innerHTML = `
-      <label>${score}</label>
-      <input type="range" min="1" max="100" value="50" class="weight-slider" data-index="${i}">
-      <span class="weight-val">50</span>
-    `;
-    $weightSliders.appendChild(div);
-  });
-  document.querySelectorAll('.weight-slider').forEach(s => {
-    s.addEventListener('input', e => {
-      e.target.nextElementSibling.textContent = e.target.value;
-    });
-  });
-}
 
 // ============ COLLECT DATA ============
 function collectData() {
@@ -2470,40 +2537,88 @@ function collectData() {
   return scores;
 }
 
-function getWeights() {
-  if (!$weightMode.checked) return null;
-  const sliders = document.querySelectorAll('.weight-slider');
-  return Array.from(sliders).map(s => parseInt(s.value) || 50);
+function getRoles() {
+  // Sync roles from DOM selects
+  document.querySelectorAll('.role-select').forEach(sel => {
+    scoreRoles[parseInt(sel.dataset.index)] = sel.value;
+  });
+  return [...scoreRoles];
 }
 
 // ============ CALCULATION ============
-function calculate(scores, totalAmount, weights) {
-  const S = scores.reduce((sum, s) => sum + 1 / s.odds, 0);
-  let allocations, guaranteedReturn, totalProfit;
+function calculate(scores, totalAmount, roles) {
+  const N = scores.length;
 
-  if (weights) {
-    const totalW = weights.reduce((a, b) => a + b, 0);
-    const raw = scores.map((s, i) => (weights[i] / totalW) * (1 / s.odds));
-    const rawSum = raw.reduce((a, b) => a + b, 0);
-    allocations = raw.map(r => (r / rawSum) * totalAmount);
-    const returns = allocations.map((x, i) => x * scores[i].odds);
-    guaranteedReturn = Math.min(...returns);
-    totalProfit = guaranteedReturn - totalAmount;
-  } else {
-    allocations = scores.map(s => (totalAmount * (1 / s.odds)) / S);
-    guaranteedReturn = totalAmount / S;
-    totalProfit = guaranteedReturn - totalAmount;
+  // Separate into hedge and primary groups
+  const hedgeIdx = []; const primaryIdx = [];
+  scores.forEach((_, i) => {
+    if (roles[i] === 'hedge') hedgeIdx.push(i);
+    else primaryIdx.push(i);
+  });
+
+  // Allocate per-score arrays
+  let allocations = new Array(N).fill(0);
+
+  // ---- Step 1: Hedge group (breakeven Dutching) ----
+  let hedgeTotal = 0;
+  let hedgeRecipSum = 0;
+  let hedgeReturn = 0;
+
+  if (hedgeIdx.length > 0) {
+    hedgeRecipSum = hedgeIdx.reduce((s, i) => s + 1 / scores[i].odds, 0);
+    hedgeTotal = totalAmount * hedgeRecipSum;
+
+    // If no primary scores, allocate full amount with regular Dutching
+    if (primaryIdx.length === 0) {
+      hedgeTotal = totalAmount;
+    } else {
+      // Cap hedge allocation at 90% to leave room for primary
+      const maxHedge = totalAmount * 0.9;
+      if (hedgeTotal > maxHedge) hedgeTotal = maxHedge;
+    }
+
+    hedgeIdx.forEach(i => {
+      allocations[i] = hedgeTotal * (1 / scores[i].odds) / hedgeRecipSum;
+    });
+    hedgeReturn = hedgeRecipSum > 0 ? hedgeTotal / hedgeRecipSum : 0;
   }
 
+  // ---- Step 2: Remaining for primary group ----
+  const remaining = Math.max(0, totalAmount - hedgeTotal);
+
+  // ---- Step 3: Weighted Dutching for primary group ----
+  if (primaryIdx.length > 0) {
+    const weightedRecipSum = primaryIdx.reduce((s, i) => {
+      const w = ROLE_WEIGHTS[roles[i]] || 1;
+      return s + w / scores[i].odds;
+    }, 0);
+
+    if (weightedRecipSum > 0) {
+      primaryIdx.forEach(i => {
+        const w = ROLE_WEIGHTS[roles[i]] || 1;
+        allocations[i] = remaining * (w / scores[i].odds) / weightedRecipSum;
+      });
+    }
+  }
+
+  // ---- Step 4: Compute results ----
   const returns = allocations.map((x, i) => x * scores[i].odds);
   const profits = returns.map(r => r - totalAmount);
   const percentages = allocations.map(a => (a / totalAmount) * 100);
 
+  const guaranteedReturn = Math.min(...returns.filter((_, i) => allocations[i] > 0.01));
+  const totalProfit = guaranteedReturn - totalAmount;
+
+  // Hedge group stats
+  const hedgeReturns = hedgeIdx.map(i => returns[i]);
+  const hedgeMinReturn = hedgeReturns.length > 0 ? Math.min(...hedgeReturns) : 0;
+
   return {
     scores, allocations, percentages, returns, profits,
     totalAmount, guaranteedReturn, totalProfit,
-    reciprocalSum: S, isArbitrage: S < 1,
-    weighted: !!weights, weights
+    hedgeTotal, hedgeMinReturn, hedgeRecipSum,
+    hedgeIdx, primaryIdx, remaining,
+    roles
   };
 }
 
@@ -2537,8 +2652,12 @@ function renderResults(r) {
   // --- Table ---
   // Find best profit row
   const bestIdx = r.profits.indexOf(Math.max(...r.profits));
-  $allocBody.innerHTML = r.scores.map((s, i) => `
+  $allocBody.innerHTML = r.scores.map((s, i) => {
+    const role = r.roles[i];
+    const roleLabel = ROLE_LABELS[role] || role;
+    return `
     <tr class="${i === bestIdx ? 'highlight-row' : ''}">
+      <td><span class="role-tag tag-${role}">${roleLabel}</span></td>
       <td class="sc">${s.score}</td>
       <td style="color:var(--accent-light)">${s.odds.toFixed(1)}</td>
       <td class="am">¥${fmt(r.allocations[i])}</td>
@@ -2548,11 +2667,14 @@ function renderResults(r) {
         ${r.profits[i] >= 0 ? '+' : ''}¥${fmt(r.profits[i])}
       </td>
     </tr>
-  `).join('');
+  `}).join('');
 
   // --- Bar Chart ---
   const maxPct = Math.max(...r.percentages);
-  $barChart.innerHTML = r.scores.map((s, i) => `
+  $barChart.innerHTML = r.scores.map((s, i) => {
+    const role = r.roles[i];
+    const roleLabel = ROLE_LABELS[role] || role;
+    return `
     <div class="bar-row">
       <span class="bar-score-label">${s.score}</span>
       <div class="bar-track">
@@ -2561,7 +2683,7 @@ function renderResults(r) {
       <span class="bar-val">¥${fmt(r.allocations[i])}</span>
       <span class="bar-pct-label">${r.percentages[i].toFixed(1)}%</span>
     </div>
-  `).join('');
+  `}).join('');
 
   // Animate bars
   requestAnimationFrame(() => {
@@ -2574,29 +2696,41 @@ function renderResults(r) {
 
   // --- Analysis ---
   let note = '';
-  if (!r.weighted) {
-    note += `<p><strong class="hl">算法：等利润荷兰式 (Dutching)</strong></p>`;
-    note += `<p><span class="formula">xᵢ = T × (1/oᵢ) / Σ(1/oⱼ)</span></p>`;
-    note += `<p>赔率倒数和：<span class="formula">Σ(1/o) = ${r.reciprocalSum.toFixed(4)}</span></p>`;
+  const hedgeCount = r.hedgeIdx.length;
+  const primaryCount = r.primaryIdx.length;
 
-    if (r.isArbitrage) {
-      note += `<p style="margin-top:8px"><span class="badge-arb">套利机会</span> 赔率倒数和 &lt; 1，<span class="good">任意比分命中均盈利 ¥${fmt0(r.totalProfit)}</span></p>`;
-    } else if (Math.abs(r.reciprocalSum - 1) < 0.0005) {
-      note += `<p style="margin-top:8px"><span class="badge-even">刚好保本</span> 赔率倒数和 ≈ 1</p>`;
+  note += `<p><strong class="hl">算法：角色分级分配 (Role-Based)</strong></p>`;
+  note += `<p>权重：<span class="formula">主要×${ROLE_WEIGHTS.primary} | 次要×${ROLE_WEIGHTS.secondary} | 次次要×${ROLE_WEIGHTS.tertiary} | 保本=回本线</span></p>`;
+
+  if (hedgeCount > 0) {
+    const hedgeLabel = r.hedgeMinReturn >= r.totalAmount * 1.01
+      ? `<span class="good">保本组命中回报 ¥${fmt0(r.hedgeMinReturn)} ≥ 总投入 ¥${fmt0(r.totalAmount)} ✓</span>`
+      : `<span class="warn">保本组回报 ¥${fmt0(r.hedgeMinReturn)} &lt; 总投入（赔率过低）</span>`;
+    note += `<p style="margin-top:6px">保本组（${hedgeCount}个）：合计 ¥${fmt0(r.hedgeTotal)} · ${hedgeLabel}</p>`;
+  }
+
+  if (primaryCount > 0) {
+    // Find primary group stats
+    const primaryReturns = r.primaryIdx.map(i => r.returns[i]);
+    const primaryMin = Math.min(...primaryReturns);
+    const primaryMax = Math.max(...primaryReturns);
+    const primaryProfit = primaryMin - r.totalAmount;
+    note += `<p>主攻组（${primaryCount}个）：合计 ¥${fmt0(r.remaining)} · `;
+    if (primaryProfit > 0.01) {
+      note += `<span class="good">最差盈利 ¥${fmt0(primaryProfit)} · 最高回报 ¥${fmt0(primaryMax)}</span></p>`;
+    } else if (primaryProfit >= -0.01) {
+      note += `<span class="badge-even">基本保本 · 最高回报 ¥${fmt0(primaryMax)}</span></p>`;
     } else {
-      note += `<p style="margin-top:8px"><span class="badge-loss">无法保本</span> 等回报分配下 <span class="warn">最低亏损 ¥${absFmt(r.totalProfit)}</span></p>`;
+      note += `<span class="warn">最差亏损 ¥${absFmt(primaryProfit)} · 最高回报 ¥${fmt0(primaryMax)}</span></p>`;
     }
-    note += `<p style="margin-top:6px;color:var(--text-muted)">不论哪个比分命中，回报均为 <span class="hl">¥${fmt0(r.guaranteedReturn)}</span></p>`;
+  }
+
+  if (r.totalProfit > 0.01) {
+    note += `<p style="margin-top:4px"><span class="badge-arb">全局最优</span> 任一命中最低回报 <span class="good">¥${fmt0(r.guaranteedReturn)} (+¥${absFmt(r.totalProfit)})</span></p>`;
+  } else if (r.totalProfit >= -0.01) {
+    note += `<p style="margin-top:4px"><span class="badge-even">全局保本</span></p>`;
   } else {
-    note += `<p><strong class="hl">算法：加权分配</strong></p>`;
-    note += `<p>权重 [${r.weights.join(', ')}] → 不同比分命中回报不同</p>`;
-    if (r.profits.every(p => p >= -0.01) && r.totalProfit > 0.01) {
-      note += `<p style="margin-top:8px"><span class="badge-arb">全部盈利</span> 最低盈利 <span class="good">¥${fmt0(r.totalProfit)}</span></p>`;
-    } else if (r.totalProfit >= -0.01) {
-      note += `<p style="margin-top:8px"><span class="badge-even">全部保本</span></p>`;
-    } else {
-      note += `<p style="margin-top:8px"><span class="badge-loss">部分亏损</span> <span class="warn">最低回报 ¥${fmt0(r.guaranteedReturn)}</span></p>`;
-    }
+    note += `<p style="margin-top:4px"><span class="badge-loss">注意</span> <span class="warn">最坏情况亏损 ¥${absFmt(r.totalProfit)}</span></p>`;
   }
 
   $analysisNote.innerHTML = note;
@@ -2622,8 +2756,8 @@ function handleCalculate() {
     return;
   }
 
-  const weights = getWeights();
-  const result = calculate(scores, totalAmount, weights);
+  const roles = getRoles();
+  const result = calculate(scores, totalAmount, roles);
   renderResults(result);
 
   // Scroll to results on mobile
@@ -2638,9 +2772,8 @@ $calcBtn.addEventListener('click', handleCalculate);
 $resetBtn.addEventListener('click', () => {
   selectedScores = [...DEFAULT_SELECTED];
   manualOdds = { ...DEFAULT_ODDS };
+  scoreRoles = [...DEFAULT_ROLES];
   renderScoreRows();
-  $weightMode.checked = false;
-  $weightSliders.classList.remove('visible');
   $amountInput.value = '10000';
   $('homeName').textContent = '西班牙';
   $('awayName').textContent = '葡萄牙';
