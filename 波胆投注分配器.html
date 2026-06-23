@@ -2380,16 +2380,16 @@ function renderScoreRows() {
     row.className = 'score-row';
     row.innerHTML = `
         <span class="row-index">${i + 1}</span>
-        <div class="score-badge" data-index="${i}">
-          <span class="score-text">${score}</span>
-          <span class="caret">▾</span>
-        </div>
         <select class="role-select r-${role}" data-index="${i}">
           <option value="primary" ${role === 'primary' ? 'selected' : ''}>主要</option>
           <option value="secondary" ${role === 'secondary' ? 'selected' : ''}>次要</option>
           <option value="tertiary" ${role === 'tertiary' ? 'selected' : ''}>次次要</option>
           <option value="hedge" ${role === 'hedge' ? 'selected' : ''}>保本</option>
         </select>
+        <div class="score-badge" data-index="${i}">
+          <span class="score-text">${score}</span>
+          <span class="caret">▾</span>
+        </div>
         <span class="odds-prefix">赔率</span>
         <input type="number" class="odds-input" value="${odds}" step="0.1" min="1.01" data-index="${i}" placeholder="赔率">
         <div class="quick-odds">
