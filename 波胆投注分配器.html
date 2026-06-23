@@ -157,26 +157,24 @@ body::before {
   margin-top: 4px;
 }
 
-/* ===== Betting Layout (sidebar + main) ===== */
+/* ===== Betting Layout (stacked) ===== */
 .betting-layout {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* ===== Match Selector Sidebar ===== */
+/* ===== Match Selector Bar (horizontal) ===== */
 .match-selector {
-  width: 130px;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: sticky;
-  top: 20px;
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
 }
 .match-selector::after {
   content: '';
@@ -186,10 +184,9 @@ body::before {
   opacity: 0.4;
 }
 
-/* Vertical tabs */
+/* Horizontal tabs */
 .ms-tab-v {
-  width: 100%;
-  padding: 8px 0;
+  padding: 8px 16px;
   font-size: 0.75rem;
   font-family: 'Noto Sans SC', sans-serif;
   color: var(--text-muted);
@@ -199,7 +196,7 @@ body::before {
   cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 0.06em;
-  text-align: center;
+  flex-shrink: 0;
 }
 .ms-tab-v:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
 .ms-tab-v.active {
@@ -208,45 +205,44 @@ body::before {
   border-color: rgba(230,29,37,0.3);
 }
 
-/* Selected match display */
+/* Selected match — inline display */
 .ms-selected {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 12px 4px;
+  gap: 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-xs);
   background: rgba(255,255,255,0.015);
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
-  text-align: center;
+  min-width: 0;
 }
 .ms-selected:hover {
   background: rgba(255,255,255,0.03);
   border-color: rgba(255,255,255,0.06);
 }
 .ms-sel-home, .ms-sel-away {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-primary);
-  line-height: 1.2;
 }
 .ms-sel-vs {
   font-family: 'Marcellus', serif;
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   color: var(--accent);
   letter-spacing: 0.08em;
+  flex-shrink: 0;
 }
 .ms-sel-meta {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .ms-selected-empty {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   opacity: 0.5;
 }
@@ -1270,33 +1266,13 @@ body::before {
 
 /* ===== Mobile overflow fixes for betting module ===== */
 @media (max-width: 500px) {
-  /* Betting layout — stack on mobile */
-  .betting-layout { flex-direction: column; gap: 14px; }
-  .match-selector {
-    width: 100%;
-    flex-direction: row;
-    gap: 10px;
-    padding: 10px;
-    position: static;
-    flex-wrap: wrap;
-  }
-  .ms-tab-v {
-    flex: 1;
-    padding: 7px 0;
-    font-size: 0.7rem;
-  }
-  .ms-selected {
-    flex: 0 0 auto;
-    flex-direction: row;
-    gap: 6px;
-    padding: 6px 10px;
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .ms-sel-home, .ms-sel-away { font-size: 0.75rem; }
-  .ms-sel-vs { font-size: 0.6rem; }
-  .ms-sel-meta { margin-top: 0; font-size: 0.58rem; }
+  /* Betting layout — compact on mobile */
+  .match-selector { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .ms-tab-v { padding: 6px 12px; font-size: 0.68rem; }
+  .ms-selected { gap: 6px; padding: 4px 8px; }
+  .ms-sel-home, .ms-sel-away { font-size: 0.78rem; }
+  .ms-sel-vs { font-size: 0.65rem; }
+  .ms-sel-meta { font-size: 0.58rem; }
 
   /* Score rows — compact */
   .score-row {
