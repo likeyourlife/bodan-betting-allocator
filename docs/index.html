@@ -2380,12 +2380,6 @@ function renderScoreRows() {
     row.className = 'score-row';
     row.innerHTML = `
         <span class="row-index">${i + 1}</span>
-        <select class="role-select r-${role}" data-index="${i}">
-          <option value="primary" ${role === 'primary' ? 'selected' : ''}>主要</option>
-          <option value="secondary" ${role === 'secondary' ? 'selected' : ''}>次要</option>
-          <option value="tertiary" ${role === 'tertiary' ? 'selected' : ''}>次次要</option>
-          <option value="hedge" ${role === 'hedge' ? 'selected' : ''}>保本</option>
-        </select>
         <div class="score-badge" data-index="${i}">
           <span class="score-text">${score}</span>
           <span class="caret">▾</span>
@@ -2398,6 +2392,12 @@ function renderScoreRows() {
           <span class="chip" data-odds="12">12</span>
           <span class="chip" data-odds="18">18</span>
         </div>
+        <select class="role-select r-${role}" data-index="${i}">
+          <option value="primary" ${role === 'primary' ? 'selected' : ''}>主要</option>
+          <option value="secondary" ${role === 'secondary' ? 'selected' : ''}>次要</option>
+          <option value="tertiary" ${role === 'tertiary' ? 'selected' : ''}>次次要</option>
+          <option value="hedge" ${role === 'hedge' ? 'selected' : ''}>保本</option>
+        </select>
         ${selectedScores.length > MIN_SCORES
           ? `<button class="remove-btn" data-index="${i}" title="移除">×</button>`
           : '<span style="width:26px;flex-shrink:0"></span>'}
