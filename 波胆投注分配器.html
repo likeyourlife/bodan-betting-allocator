@@ -248,14 +248,58 @@ body::before {
 
 /* ===== Main Grid ===== */
 .main-grid {
-  display: grid;
-  grid-template-columns: 430px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Results connector */
+.results-connector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.results-connector.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.results-connector .rc-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-dim), var(--accent-dim), transparent);
+}
+.results-connector .rc-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(230,29,37,0.4);
+  flex-shrink: 0;
+}
+.results-connector .rc-label {
+  font-family: 'Marcellus', 'Noto Sans SC', serif;
+  font-size: 0.7rem;
+  color: var(--accent-light);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Input card max-width */
+#inputCard {
+  max-width: 720px;
+}
+#resultsCard {
+  max-width: 720px;
 }
 
 @media (max-width: 900px) {
-  .main-grid { grid-template-columns: 1fr; }
   .header h1 { font-size: 1.6rem; }
 }
 
@@ -836,21 +880,29 @@ body::before {
 /* ===== Results Panel ===== */
 .results-panel {
   display: none;
-  animation: fadeUp 0.35s ease-out;
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .results-panel.visible { display: block; }
+
+/* Results card highlight on first appear */
+#resultsCard.card-highlight {
+  box-shadow: 0 0 0 1px rgba(230,29,37,0.08), 0 0 40px rgba(230,29,37,0.06);
+  transition: box-shadow 0.8s ease-out;
+}
+#resultsCard.card-highlight-fade { box-shadow: none; }
 
 /* Empty state */
 .empty-state {
   text-align: center;
   padding: 40px 16px;
   color: var(--text-muted);
+  transition: opacity 0.3s, transform 0.3s;
 }
 
 .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
@@ -1205,6 +1257,9 @@ body::before {
 
   /* Analysis note */
   .analysis-note { padding: 12px 12px; font-size: 0.74rem; }
+
+  /* Results connector */
+  .results-connector .rc-label { font-size: 0.62rem; }
 
   /* ===== Mobile: Score Picker bottom sheet ===== */
   .score-picker.mobile-bottom-sheet {
@@ -2034,6 +2089,15 @@ body::before {
       </div>
     </div>
 
+    <!-- Results Connector -->
+    <div class="results-connector" id="resultsConnector">
+      <span class="rc-line"></span>
+      <span class="rc-dot"></span>
+      <span class="rc-label">RESULTS</span>
+      <span class="rc-dot"></span>
+      <span class="rc-line"></span>
+    </div>
+
     <!-- RIGHT: Results -->
     <div>
       <div class="card" id="resultsCard">
@@ -2537,6 +2601,17 @@ function renderResults(r) {
   $emptyState.style.display = 'none';
   $resultsPanel.classList.add('visible');
 
+  // Trigger card highlight glow
+  const resultsCard = $('resultsCard');
+  resultsCard.classList.add('card-highlight');
+  clearTimeout(resultsCard._hlTimer);
+  resultsCard._hlTimer = setTimeout(() => {
+    resultsCard.classList.add('card-highlight-fade');
+  }, 100);
+  setTimeout(() => {
+    resultsCard.classList.remove('card-highlight', 'card-highlight-fade');
+  }, 1500);
+
   const fmt = n => n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmt0 = n => n.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
   const absFmt = n => fmt0(Math.abs(n));
@@ -2670,10 +2745,12 @@ function handleCalculate() {
   const result = calculate(scores, totalAmount, roles);
   renderResults(result);
 
-  // Scroll to results on mobile
-  if (window.innerWidth < 900) {
-    $('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  // Show results connector
+  const connector = document.getElementById('resultsConnector');
+  if (connector) connector.classList.add('visible');
+
+  // Scroll to results
+  $('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 $calcBtn.addEventListener('click', handleCalculate);
@@ -2692,6 +2769,8 @@ $resetBtn.addEventListener('click', () => {
   $('matchCard').classList.remove('editing');
   $resultsPanel.classList.remove('visible');
   $emptyState.style.display = '';
+  const connector = document.getElementById('resultsConnector');
+  if (connector) connector.classList.remove('visible');
 });
 
 // ============ TOAST ============
